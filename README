@@ -1,0 +1,20 @@
+Moksi
+-----
+
+Moksi is a stubbing and mocking library for JavaScript.
+
+  var Person {
+    name: function() {
+      return 'Alice';
+    }
+  }
+  
+  // Stub the person's name.
+  Moksi.stub(Person, 'name', function(){
+    return 'Bob';
+  });
+  Person.name() == 'Bob';
+  
+  // Revert all stubs
+  Moksi.revert(); 
+  Person.name() == 'Alice';
