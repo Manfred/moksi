@@ -7,14 +7,34 @@ var Person = {
   }
 };
 
-new Test.Unit.Runner({  
+var MockTestCaseAssertions = {
+  assertActualCalls: function(expected, actual) {
+    this.assertEqual(expected, this.mockTestCase.assertEqualArguments[0]);
+    this.assertEqual(actual, this.mockTestCase.assertEqualArguments[1]);
+    this.assertEqual('mock test case', this.mockTestCase.assertEqualArguments[2]);
+  }
+};
+
+new Test.Unit.Runner({
   setup: function() {
     Moksi.stub(Person, 'name', function() {
       return 'Bob';
     });
     Moksi.stub(Person, 'age', function() {
       return 28;
-    });    
+    });
+    
+    this.mockTestCase = {
+      assertEqualArguments: null,
+      assertEqual: function() {
+        this.assertEqualArguments = this.assertEqual.arguments;
+      },
+      buildMessage: function() {
+        return 'mock test case';
+      }
+    };
+    
+    Object.extend(this, MockTestCaseAssertions);
   },
   
   teardown: function() {
@@ -45,53 +65,68 @@ new Test.Unit.Runner({
   
   testAssertExpectationsSucceeds: function() {
     Moksi.expects(Person, 'name');
-    
-    Person.name();
-    
+    Person.name();    
     Moksi.assertExpectations(this);
   },
   
   testAssertExpectationsNotCalled: function() {
-    var mockTestCase = {
-      assertEqualArguments: null,
-      assertEqual: function() {
-        this.assertEqualArguments = this.assertEqual.arguments;
-      },
-      buildMessage: function() {
-        return 'built message';
-      }
-    };
-    
     Moksi.expects(Person, 'name');
-    
-    Moksi.assertExpectations(mockTestCase);
-    
-    this.assertEqual(1, mockTestCase.assertEqualArguments[0]);
-    this.assertEqual(0, mockTestCase.assertEqualArguments[1]);
-    this.assertEqual('built message', mockTestCase.assertEqualArguments[2]);
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 0);
   },
   
   testAssertExpectationsCalledTooOften: function() {
-    var mockTestCase = {
-      assertEqualArguments: null,
-      assertEqual: function() {
-        this.assertEqualArguments = this.assertEqual.arguments;
-      },
-      buildMessage: function() {
-        return 'built message';
-      }
-    };
-    
     Moksi.expects(Person, 'name');
     
     Person.name();
     Person.name();
     Person.name();
     
-    Moksi.assertExpectations(mockTestCase);
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 3);
+  },
+  
+  testAssertExpectationsCalledWithArgument: function() {
+    Moksi.expects(Person, 'name');
+    Person.name('Kari');
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 0);
+  },
+  
+  testAssertExpectationsWithRequiredArguments: function() {
+    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Person.name('Kari');
+    Moksi.assertExpectations(this);
+  },
+  
+  testAssertExpectationsWithRequiredArgumentsNotCalled: function() {
+    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 0);
+  },
+  
+  testAssertExpectationsWithRequiredArgumentsCalledTooOften: function() {
+    Moksi.expects(Person, 'name', {with: ['Kari']});
     
-    this.assertEqual(1, mockTestCase.assertEqualArguments[0]);
-    this.assertEqual(3, mockTestCase.assertEqualArguments[1]);
-    this.assertEqual('built message', mockTestCase.assertEqualArguments[2]);
+    Person.name('Kari');
+    Person.name('Kari');
+    Person.name('Kari');
+    
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 3);
+  },
+  
+  testAssertExpectationsWithRequiredArgumentsCalledWithoutArguments: function() {
+    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Person.name();
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 0);
+  },
+  
+  testAssertExpectationsWithRequiredArgumentsCalledWithWrongArguments: function() {
+    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Person.name('Jane');
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 0);
   }
 });

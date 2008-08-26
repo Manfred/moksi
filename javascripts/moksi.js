@@ -5,7 +5,7 @@ var Moksi = {
   
   beforeStubPrefix: "__before_stub_",
   beforeStubRegexp: /^__before_stub_(.*)$/,
-  
+
   stubbedFunctionName: function(functionName) {
     return this.beforeStubPrefix + functionName;
   },
@@ -26,14 +26,18 @@ var Moksi = {
     this.revertMethod(object, functionName, temporaryName);
   },
   
-  expects: function(object, functionName) {
+  expects: function(object, functionName, options) {
+    options = options || {};
+    options.times = options.times || 1;
+    
     this.expected[object] = this.expected[object] || {}
-    this.expected[object][functionName] = 1;
+    this.expected[object][functionName] = [];
+    this.expected[object][functionName].push(options);
     
     this.stub(object, functionName, function() {
       Moksi.called[object] = Moksi.called[object] || {};
-      Moksi.called[object][functionName] = Moksi.called[object][functionName] || 0;
-      Moksi.called[object][functionName] += 1;
+      Moksi.called[object][functionName] = Moksi.called[object][functionName] || [];
+      Moksi.called[object][functionName].push(this[functionName].arguments);
     });
   },
   
@@ -56,22 +60,46 @@ var Moksi = {
     delete object[temporaryName];
   },
   
+  sameArguments: function(left, right) {
+    left = $A(left);
+    right = $A(right);
+    
+    if (left.length != right.length) return false;
+    
+    for(i=0; i < left.length; i++) {
+      if (left[i] != right[i]) {
+        return false;
+      }
+    }
+    return true;
+  },
+  
+  assertExpectation: function(testCase, object, functionName, expected) {
+    var callsToFunction = [];
+    if ((this.called[object]) && (this.called[object][property])) {
+      callsToFunction = this.called[object][property];
+    }
+    
+    var timesCalled = callsToFunction.inject(0, function(timesCalled, call) {
+      if (this.sameArguments(call, expected.with)) {
+        return timesCalled + 1;
+      } else {
+        return timesCalled;
+      }
+    }, this);
+    
+    var message = testCase.buildMessage('expectation',
+      'expected ?.? to be called ? times, but was called ? times',
+      object.name||'Object', property, expected.times, timesCalled);
+    testCase.assertEqual(expected.times, timesCalled, message);
+  },
+  
   assertExpectations: function(testCase) {
     for (object in this.expected) {
       for (property in this.expected[object]) {
-        var called;
-        if ((this.called[object]) && (this.called[object][property])) {
-          called = this.called[object][property];
-        } else {
-          called = 0;
-        }
-        
-        var message = testCase.buildMessage('expectation',
-          'expected ?.? to be called ? times, but was called ? times',
-          object.name||'Object',
-          property,
-          this.expected[object][property], called);
-        testCase.assertEqual(this.expected[object][property], called, message);
+        $A(this.expected[object][property]).each(function(expected) {
+          this.assertExpectation(testCase, object, property, expected);
+        }, this);
       }
     }
   }
