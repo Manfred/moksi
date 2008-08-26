@@ -6,6 +6,9 @@ Moksi is a stubbing and mocking library for JavaScript.
   var Person {
     name: function() {
       return 'Alice';
+    },
+    age: function() {
+      return 28;
     }
   }
   
@@ -15,6 +18,11 @@ Moksi is a stubbing and mocking library for JavaScript.
   });
   Person.name() == 'Bob';
   
-  // Revert all stubs
+  // Expect age to be called
+  Moksi.expects(Person, 'age');
+  Person.age();
+  Moksi.assertExpectations(this);
+  
+  // Revert all stubs and expectations
   Moksi.revert(); 
   Person.name() == 'Alice';
