@@ -63,7 +63,6 @@ var Moksi = {
   sameArguments: function(left, right) {
     left = $A(left);
     right = $A(right);
-    
     if (left.length != right.length) return false;
     
     for(i=0; i < left.length; i++) {
@@ -76,12 +75,12 @@ var Moksi = {
   
   assertExpectation: function(testCase, object, functionName, expected) {
     var callsToFunction = [];
-    if ((this.called[object]) && (this.called[object][property])) {
+    if (this.called[object] && this.called[object][property]) {
       callsToFunction = this.called[object][property];
     }
     
     var timesCalled = callsToFunction.inject(0, function(timesCalled, call) {
-      if (this.sameArguments(call, expected.with)) {
+      if (this.sameArguments(call, expected['with'])) {
         return timesCalled + 1;
       } else {
         return timesCalled;

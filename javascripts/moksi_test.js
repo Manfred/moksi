@@ -94,19 +94,19 @@ new Test.Unit.Runner({
   },
   
   testAssertExpectationsWithRequiredArguments: function() {
-    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Moksi.expects(Person, 'name', { 'with': ['Kari'] });
     Person.name('Kari');
     Moksi.assertExpectations(this);
   },
   
   testAssertExpectationsWithRequiredArgumentsNotCalled: function() {
-    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Moksi.expects(Person, 'name', { 'with': ['Kari']});
     Moksi.assertExpectations(this.mockTestCase);
     this.assertActualCalls(1, 0);
   },
   
   testAssertExpectationsWithRequiredArgumentsCalledTooOften: function() {
-    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Moksi.expects(Person, 'name', { 'with': ['Kari']});
     
     Person.name('Kari');
     Person.name('Kari');
@@ -117,14 +117,14 @@ new Test.Unit.Runner({
   },
   
   testAssertExpectationsWithRequiredArgumentsCalledWithoutArguments: function() {
-    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Moksi.expects(Person, 'name', { 'with': ['Kari']});
     Person.name();
     Moksi.assertExpectations(this.mockTestCase);
     this.assertActualCalls(1, 0);
   },
   
   testAssertExpectationsWithRequiredArgumentsCalledWithWrongArguments: function() {
-    Moksi.expects(Person, 'name', {with: ['Kari']});
+    Moksi.expects(Person, 'name', { 'with': ['Kari']});
     Person.name('Jane');
     Moksi.assertExpectations(this.mockTestCase);
     this.assertActualCalls(1, 0);
