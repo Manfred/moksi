@@ -1,5 +1,4 @@
-Moksi
------
+# Moksi
 
 Moksi is a stubbing and mocking library for JavaScript.
 
