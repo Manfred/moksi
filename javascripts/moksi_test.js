@@ -100,6 +100,19 @@ new Test.Unit.Runner({
     this.assert(!Moksi.sameArguments([left], [right]));
   },
   
+  testSameArgumentsWithObjectsThatContainFunctions: function() {
+    var f = function() { document.write('Nuff sed') };
+    var g = function() { document.write('Word…') };
+    
+    var left = { onSuccess: f };
+    var right = { onSuccess: f };
+    this.assert(Moksi.sameArguments([left], [right]));
+    
+    var left = { onSuccess: f };
+    var right = { onSuccess: g };
+    this.assert(!Moksi.sameArguments([left], [right]));
+  },
+  
   testAssertExpectationsSucceeds: function() {
     Moksi.expects(Person, 'name');
     Person.name();
