@@ -92,7 +92,7 @@ var Moksi = {
     }
     
     var timesCalled = callsToFunction.inject(0, function(timesCalled, call) {
-      if (this.sameArguments(call, expected['with'])) {
+      if (typeof expected['with'] == 'undefined' || this.sameArguments(call, expected['with'])) {
         return timesCalled + 1;
       } else {
         return timesCalled;

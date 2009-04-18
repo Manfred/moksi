@@ -136,11 +136,12 @@ new Test.Unit.Runner({
     this.assertActualCalls(1, 3);
   },
   
-  testAssertExpectationsCalledWithArgument: function() {
+  testAssertExpectationsCalledWithNotRequiredArgument: function() {
     Moksi.expects(Person, 'name');
     Person.name('Kari');
-    Moksi.assertExpectations(this.mockTestCase);
-    this.assertActualCalls(1, 0);
+    console.log('START');
+    Moksi.assertExpectations(this);
+    console.log('END')
   },
   
   testAssertExpectationsWithRequiredArguments: function() {
