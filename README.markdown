@@ -2,7 +2,7 @@
 
 Moksi is a stubbing and mocking library for JavaScript.
 
-<pre><code>var Person {
+<pre><code>var Person = {
   name: function() {
     return 'Alice';
   },
