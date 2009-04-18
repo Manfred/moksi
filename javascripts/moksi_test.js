@@ -63,9 +63,46 @@ new Test.Unit.Runner({
     this.assertEqual(null, Person.name());
   },
   
+  testSameArgumentsWithNoArguments: function() {
+    this.assert(Moksi.sameArguments([], []));
+  },
+  
+  testSameArgumentsWithBasicTypes: function() {
+    this.assert(Moksi.sameArguments([1], [1]));
+    this.assert(Moksi.sameArguments([1, 2], [1, 2]));
+    this.assert(Moksi.sameArguments([1, 2, 3], [1, 2, 3]));
+    
+    this.assert(!Moksi.sameArguments([1], []));
+    this.assert(!Moksi.sameArguments([], [1]));
+    this.assert(!Moksi.sameArguments([1, 3, 2], [1, 2, 3]));
+  },
+  
+  testSameArgumentsWithObjects: function() {
+    this.assert(Moksi.sameArguments([{}], [{}]));
+    this.assert(Moksi.sameArguments([{a: 1}], [{a: 1}]));
+    this.assert(Moksi.sameArguments([{a: 2, 'b': 3}], [{a: 2, 'b': 3}]));
+    
+    var left = {a: 1};
+    left.b = {};
+    var right = {a: 1};
+    right.b = {};
+    this.assert(Moksi.sameArguments([left], [right]));
+    
+    this.assert(!Moksi.sameArguments([{a: 1}], [{a: 2}]));
+    this.assert(!Moksi.sameArguments([{a: 1, b: 3}], [{a: 1, b: 2}]));
+    this.assert(!Moksi.sameArguments([{a: 1, b: 3}], [{a: 1}]));
+    this.assert(!Moksi.sameArguments([{a: 1}], [{a: 1, c: 5}]));
+    
+    var left = {a: 1};
+    left.b = {b: 2};
+    var right = {a: 1};
+    right.b = {b: 3};
+    this.assert(!Moksi.sameArguments([left], [right]));
+  },
+  
   testAssertExpectationsSucceeds: function() {
     Moksi.expects(Person, 'name');
-    Person.name();    
+    Person.name();
     Moksi.assertExpectations(this);
   },
   

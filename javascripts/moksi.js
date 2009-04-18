@@ -60,15 +60,27 @@ var Moksi = {
     delete object[temporaryName];
   },
   
+  sameObject: function(left, right) {
+    if (typeof left == 'object') {
+      for (var key in left) {
+        if (!this.sameObject(left[key], right[key])) return false;
+      }
+      for (var key in right) {
+        if (!this.sameObject(left[key], right[key])) return false;
+      }
+      return true;
+    } else {
+      return left == right;
+    }
+  },
+  
   sameArguments: function(left, right) {
     left = $A(left);
     right = $A(right);
     if (left.length != right.length) return false;
     
     for(i=0; i < left.length; i++) {
-      if (left[i] != right[i]) {
-        return false;
-      }
+      if (!this.sameObject(left[i], right[i])) return false;
     }
     return true;
   },
