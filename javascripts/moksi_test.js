@@ -139,9 +139,7 @@ new Test.Unit.Runner({
   testAssertExpectationsCalledWithNotRequiredArgument: function() {
     Moksi.expects(Person, 'name');
     Person.name('Kari');
-    console.log('START');
     Moksi.assertExpectations(this);
-    console.log('END')
   },
   
   testAssertExpectationsWithRequiredArguments: function() {
