@@ -177,5 +177,46 @@ new Test.Unit.Runner({
     Person.name('Jane');
     Moksi.assertExpectations(this.mockTestCase);
     this.assertActualCalls(1, 0);
+  },
+  
+  testAssertExpectationExpectedZeroTimes: function() {
+    Moksi.expects(Person, 'name', {times: 0});
+    Moksi.assertExpectations(this);
+  },
+  
+  testAssertExpectationExpectedOnce: function() {
+    Moksi.expects(Person, 'name', {times: 1});
+    
+    Person.name();
+    
+    Moksi.assertExpectations(this);
+  },
+  
+  testAssertExpectationExpectedMoreThanOnce: function() {
+    Moksi.expects(Person, 'name', {times: 2});
+    
+    Person.name();
+    Person.name();
+    
+    Moksi.assertExpectations(this);
+  },
+  
+  testAssertExpectationExpectedZeroTimesButCalled: function() {
+    Moksi.expects(Person, 'name', {times: 0});
+    
+    Person.name();
+    
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(0, 1);
+  },
+  
+  testAssertExpectationExpectedOnceButCalledMultipleTimes: function() {
+    Moksi.expects(Person, 'name', {times: 1});
+    
+    Person.name();
+    Person.name();
+    
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(1, 2);
   }
 });
