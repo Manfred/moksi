@@ -41,6 +41,10 @@ var Moksi = {
     });
   },
   
+  rejects: function(object, functionName) {
+    this.expects(object, functionName, {times: 0});
+  },
+  
   revert: function() {
     var object;
     while(object = this.stubbed.pop()) {

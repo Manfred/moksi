@@ -218,5 +218,19 @@ new Test.Unit.Runner({
     
     Moksi.assertExpectations(this.mockTestCase);
     this.assertActualCalls(1, 2);
+  },
+  
+  testRejects: function() {
+    Moksi.rejects(Person, 'name');
+    Moksi.assertExpectations(this);
+  },
+  
+  testRejectsButIsCalled: function() {
+    Moksi.rejects(Person, 'name');
+    
+    Person.name();
+    
+    Moksi.assertExpectations(this.mockTestCase);
+    this.assertActualCalls(0, 1);
   }
 });

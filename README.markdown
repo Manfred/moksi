@@ -19,6 +19,7 @@ Person.name() == 'Bob';
 
 // Expect age to be called
 Moksi.expects(Person, 'age');
+Moksi.rejects(Person, 'name');
 Person.age();
 Moksi.assertExpectations(this);
 
