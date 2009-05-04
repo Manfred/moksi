@@ -79,8 +79,6 @@ var Moksi = {
   },
   
   sameArguments: function(left, right) {
-    left = $A(left);
-    right = $A(right);
     if (left.length != right.length) return false;
     
     for(i=0; i < left.length; i++) {
@@ -95,13 +93,12 @@ var Moksi = {
       callsToFunction = this.called[object][property];
     }
     
-    var timesCalled = callsToFunction.inject(0, function(timesCalled, call) {
-      if (typeof expected['with'] == 'undefined' || this.sameArguments(call, expected['with'])) {
-        return timesCalled + 1;
-      } else {
-        return timesCalled;
+    var timesCalled = 0;
+    for (var call in callsToFunction) {
+      if (typeof expected['with'] == 'undefined' || this.sameArguments(callsToFunction[call], expected['with'])) {
+        timesCalled++;
       }
-    }, this);
+    }
     
     var message = testCase.buildMessage('expectation',
       'expected ?.? to be called ? times, but was called ? times',
@@ -112,9 +109,9 @@ var Moksi = {
   assertExpectations: function(testCase) {
     for (object in this.expected) {
       for (property in this.expected[object]) {
-        $A(this.expected[object][property]).each(function(expected) {
-          this.assertExpectation(testCase, object, property, expected);
-        }, this);
+        for (expected in this.expected[object][property]) {
+          this.assertExpectation(testCase, object, property, this.expected[object][property][expected]);
+        }
       }
     }
   }

@@ -34,7 +34,9 @@ new Test.Unit.Runner({
       }
     };
     
-    Object.extend(this, MockTestCaseAssertions);
+    for (var property in MockTestCaseAssertions) {
+      this[property] = MockTestCaseAssertions[property]
+    }
   },
   
   teardown: function() {
