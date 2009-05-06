@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2009 Manfred Stienstra, Fingertips <manfred@fngtps.com>
+ *
+ * See LICENSE for licensing details.
+ */
+
 var Moksi = {
   stubbed: [],
   called: {},
@@ -5,7 +11,7 @@ var Moksi = {
   
   beforeStubPrefix: "__before_stub_",
   beforeStubRegexp: /^__before_stub_(.*)$/,
-
+  
   stubbedFunctionName: function(functionName) {
     return this.beforeStubPrefix + functionName;
   },
