@@ -2,5 +2,5 @@ task :default => :test
 
 desc "Run all unit tests"
 task :test do
-  sh "jstest #{Dir['test/*.html'].join(' ')}"
+  sh "jstest #{Dir['test/runners/*.html'].join(' ')}"
 end
