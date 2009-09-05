@@ -22,3 +22,7 @@ var Moksi = {
 };
 
 //= require "context"
+
+//= require "reporter"
+
+//= require "expectations"

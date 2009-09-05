@@ -24,12 +24,58 @@ var Moksi = {
 Moksi.Context = Class.create({
   initialize: function(subject, cases) {
     this.subject = subject;
-    this.cases = cases;
+    this.cases = $H(cases);
+
+    Moksi.Reporter.plan(subject, this.cases.keys().length);
   },
 
   run: function() {
-    for (var description in this.cases) { if (this.cases.hasOwnProperty(description)) {
-      this.cases[description]();
-    }};
+    this.cases.each(function(testCase) {
+      var result = testCase.value();
+      Moksi.Reporter.report(result.result, testCase.key, result.message);
+    });
   }
 });
+
+Moksi.Reporter = {
+  contextTemplate: new Template('<div class="context"><h2>#{description} <span class="test-count">#{count} tests</span></h2><table><tbody id="test-log"></tbody></table></div>'),
+  resultTemplate:  new Template('<tr class="test #{result}"><td>#{result}</td><td>#{description}</td><td>#{message}</td></tr>'),
+
+  plan: function(description, count) {
+    console.log(description + ' – ' + count);
+    document.body.insert({bottom: Moksi.Reporter.contextTemplate.evaluate({
+      description: description, count: count
+    })});
+  },
+
+  report: function(result, description, message) {
+    $('test-log').insert({bottom: Moksi.Reporter.resultTemplate.evaluate({
+      result: result, description: description, message: message
+    })});
+  }
+};
+
+Moksi.Expectation = {};
+Moksi.Expectation.Subject = Class.create({
+  initialize: function(subject, options) {
+    this.subject = subject;
+    this.options = options;
+  },
+
+  equals: function(expected) {
+    if ((this.subject == expected) == options.result)
+      console.log('Yay')
+    else
+      console.log('Boo')
+  }
+});
+
+Moksi.Expectations = {
+  expects: function(subject) {
+    return new Moksi.Expectations.Subject(subject, {result: true});
+  },
+
+  rejects: function(subject) {
+    return new Moksi.Expectations.Subject(subject, {result: false});
+  }
+};

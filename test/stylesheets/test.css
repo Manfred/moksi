@@ -1,0 +1,39 @@
+html
+{
+  font: 14px/18px Geogria, Verdana, Sans-serif;
+}
+h2
+{
+  margin: 0px;
+  padding: 8px 0px;
+}
+h2 .test-count
+{
+  color: #999;
+  font-size: 70%;
+  font-style: italic;
+}
+table
+{
+  border-collapse: collapse;
+}
+tr.ok
+{
+}
+tr.not.ok
+{
+}
+td
+{
+  padding-right: 8px;
+}
+td:last-child
+{
+  padding-right: 0px;
+}
+td.result
+{
+  font-weight: bold;
+  font-variant: small-caps;
+  text-align:  right;
+}
