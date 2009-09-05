@@ -17,15 +17,9 @@ table
 {
   border-collapse: collapse;
 }
-tr.ok
-{
-}
-tr.not.ok
-{
-}
 td
 {
-  padding-right: 8px;
+  padding: 0px 8px;
 }
 td:last-child
 {
@@ -36,4 +30,12 @@ td.result
   font-weight: bold;
   font-variant: small-caps;
   text-align:  right;
+}
+tr.ok td.result
+{
+  background-color: #e0ffd0;
+}
+tr.not.ok td.result
+{
+  background-color: #ff9070;
 }
