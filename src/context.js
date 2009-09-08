@@ -3,13 +3,15 @@ Moksi.Context = Class.create({
     this.subject = subject;
     this.cases   = $H(cases);
     
+    Object.extend(this.cases, Moksi.Expectations.Methods);
     Moksi.Reporter.plan(subject, this.cases.keys().length);
   },
   
   run: function() {
     this.cases.each(function(test) {
-      var result = test.value();
-      Moksi.Reporter.report(result.result, test.key, result.message);
-    });
+      test.value.bind(this.cases)();
+      var report = Moksi.Expectations.Collection.report();
+      Moksi.Reporter.report(report.result, test.key, report.contents);
+    }, this);
   }
 });

@@ -21,8 +21,8 @@ var Moksi = {
   }
 };
 
+//= require "expectations"
+
 //= require "context"
 
 //= require "reporter"
-
-//= require "expectations"

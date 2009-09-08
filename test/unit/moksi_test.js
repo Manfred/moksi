@@ -1,13 +1,12 @@
 Moksi.describe('Moksi', {
   'should return its version': function() {
-    return {result: 'ok', message: ''};
+    this.expects(Moksi.VERSION).equals('0.1.0');
   },
   
-  'should return be in perfect condition': function() {
-    return {result: 'ok', message: ''};
-  },
-  
-  'should be nice to people': function() {
-   return {result: 'not ok', message: 'is not nice to people'}; 
+  'should fail': function() {
+    this.expects(Moksi.VERSION).equals('0');
+    this.expects(Moksi.VERSION).equals('1');
+    this.expects(Moksi.VERSION).equals('2');
+    this.expects(Moksi.VERSION).equals('3');
   }
 });

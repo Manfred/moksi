@@ -6,10 +6,7 @@ var Runner = {
   
   run: function() {
     var options = window.location.search.parseQuery();
-    if (options['test'])
-      Runner.loadContext(options);
-    else
-      console.log("No test!");
+    Runner.loadContext(options);
   }
 };
 
