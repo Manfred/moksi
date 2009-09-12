@@ -41,6 +41,14 @@ Moksi.Expectations.Subject = Class.create({
     } else {
       Moksi.Expectations.Collection.capture('not ok', 'expected <'+this.subject+'> to be equal to <'+expected+'>');
     }
+  },
+  
+  empty: function() {
+    if ((this.subject.length == 0) == this.options.result) {
+      Moksi.Expectations.Collection.capture('ok');
+    } else {
+      Moksi.Expectations.Collection.capture('not ok', 'expected <'+this.subject+'> to be empty');
+    }
   }
 });
 

@@ -7,8 +7,8 @@
 var Moksi = {
   VERSION: "0.1.0",
   
-  describe: function(subject, cases) {
-    var context = new Moksi.Context(subject, cases)
+  describe: function(subject, cases, options) {
+    var context = new Moksi.Context(subject, cases, options);
     return context.run();
   },
   
