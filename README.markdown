@@ -1,28 +1,27 @@
 # Moksi
 
-Moksi is a stubbing and mocking library for JavaScript.
+Moksi is an all-in-one JavaScript testing framework with a lot of salt, but easy on the pepper. With Moksi you write tests which are terse and readable.
 
-<pre><code>var Person = {
-  name: function() {
-    return 'Alice';
-  },
-  age: function() {
-    return 28;
-  }
-}
+## A taste
 
-// Stub the person's name.
-Moksi.stub(Person, 'name', function() {
-  return 'Bob';
-});
-Person.name() == 'Bob';
+  var Person = Class.create({
+    initialize: function(name, mood) {
+      this.name = name;
+    },
+  
+    toBlurb: function() {
+      return this.name + ' is a ' + mood + ' person.';
+    }
+  });
 
-// Expect age to be called
-Moksi.expects(Person, 'age');
-Moksi.rejects(Person, 'name');
-Person.age();
-Moksi.assertExpectations(this);
+  Moksi.describe('Person', {
+    setup: function() {
+      this.person = new Person('Alice', 'happy');
+    },
+  
+    'describes itself in a blurb': function() {
+      this.expects(this.person.toBlurb()).equals('Alice is a happy person.');
+    }
+  });
 
-// Revert all stubs and expectations
-Moksi.revert(); 
-Person.name() == 'Alice';</code></pre>
+Copyright © 2009, Manfred Stienstra <manfred@fngtps.com>
