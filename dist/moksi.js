@@ -7,8 +7,8 @@
 var Moksi = {
   VERSION: "0.1.0",
 
-  describe: function(subject, cases) {
-    var context = new Moksi.Context(subject, cases)
+  describe: function(subject, cases, options) {
+    var context = new Moksi.Context(subject, cases, options);
     return context.run();
   },
 
@@ -62,7 +62,15 @@ Moksi.Expectations.Subject = Class.create({
     if ((this.subject == expected) == this.options.result) {
       Moksi.Expectations.Collection.capture('ok');
     } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected <'+this.subject+'> to be equal to <'+expected+'>');
+      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’');
+    }
+  },
+
+  empty: function() {
+    if ((this.subject.length == 0) == this.options.result) {
+      Moksi.Expectations.Collection.capture('ok');
+    } else {
+      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be empty');
     }
   }
 });
@@ -80,39 +88,64 @@ Moksi.Expectations.Methods = function() {
 }();
 
 Moksi.Context = Class.create({
-  initialize: function(subject, cases) {
-    this.subject = subject;
-    this.cases   = $H(cases);
+  initialize: function(subject, cases, options) {
+    options = options || {};
 
-    Object.extend(this.cases, Moksi.Expectations);
+    this.subject  = subject;
+    this.cases    = $H(cases);
+    this.reporter = options.reporter || new Moksi.Reporter();
 
-    Moksi.Reporter.plan(subject, this.cases.keys().length);
+    Object.extend(this.cases, Moksi.Expectations.Methods);
+    this.reporter.plan(subject, this.cases.keys().length);
   },
 
   run: function() {
     this.cases.each(function(test) {
-      Object.extend(test.value, Moksi.Expectations.Methods);
-
+      test.value.bind(this.cases)();
       var report = Moksi.Expectations.Collection.report();
-      Moksi.Reporter.report(report.result, test.key, report.contents);
-    });
+      this.reporter.report(test.key, report);
+    }, this);
   }
 });
 
-Moksi.Reporter = {
-  contextTemplate: new Template('<div class="context"><h2>#{description} <span class="test-count">(#{tests})</span></h2><table><tbody id="test-log"></tbody></table></div>'),
-  resultTemplate:  new Template('<tr class="test #{result}"><td class="result">#{result}</td><td class="description">#{description}</td><td class="message">#{message}</td></tr>'),
+Moksi.Reporter = Class.create({
+  initialize: function(options) {
+    options = options || {};
+
+    this.domID     = 'test-log-' + new Date().valueOf();
+    this.output    = options.output || document.body,
+    this.templates = options.templates || Moksi.Reporter.Templates
+  },
 
   plan: function(description, count) {
-    var tests = count > 1 ? count + ' tests' : count + ' test';
-    document.body.insert({bottom: Moksi.Reporter.contextTemplate.evaluate({
-      description: description, tests: tests
+    var tests = count + (count > 1 ? ' tests' : ' test');
+    this.output.insert({bottom: this.templates.context.evaluate({
+      description: description.escapeHTML(), tests: tests.escapeHTML(), token: this.domID
     })});
   },
 
-  report: function(result, description, message) {
-    $('test-log').insert({bottom: Moksi.Reporter.resultTemplate.evaluate({
-      result: result, description: description, message: message
+  report: function(description, report) {
+    switch(report.expectationCount) {
+      case 0:
+        var assertions = 'No assertions';
+        break;
+      case 1:
+        var assertions = 'One assertion';
+        break;
+      default:
+        var assertions = report.expectationCount + ' assertions';
+    };
+    var message = report.contents.map(function(message) {
+      return this.templates.message.evaluate({message: message.escapeHTML()});
+    }, this).join(' ');
+    $(this.domID).insert({bottom: this.templates.result.evaluate({
+      result: report.result, description: description.escapeHTML(), assertions: assertions, message: report.contents
     })});
   }
+});
+
+Moksi.Reporter.Templates = {
+  context: new Template('<div class="context"><h2>#{description} <span class="test-count">(#{tests})</span></h2><table><tbody id="#{token}"></tbody></table></div>'),
+  result:  new Template('<tr class="test #{result}"><td class="result">#{result}</td><td class="description">#{description} (#{assertions})</td><td class="message">#{message}</td></tr>'),
+  message: new Template('<span class="message-part">#{message}</span>')
 };

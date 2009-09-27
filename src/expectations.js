@@ -39,7 +39,7 @@ Moksi.Expectations.Subject = Class.create({
     if ((this.subject == expected) == this.options.result) {
       Moksi.Expectations.Collection.capture('ok');
     } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected <'+this.subject+'> to be equal to <'+expected+'>');
+      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’');
     }
   },
   
@@ -47,7 +47,7 @@ Moksi.Expectations.Subject = Class.create({
     if ((this.subject.length == 0) == this.options.result) {
       Moksi.Expectations.Collection.capture('ok');
     } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected <'+this.subject+'> to be empty');
+      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be empty');
     }
   }
 });

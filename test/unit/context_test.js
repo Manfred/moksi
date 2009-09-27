@@ -6,8 +6,8 @@ Fake.Reporter = {
     Fake.Reporter.results     = [];
   },
   
-  report: function(result, description, messages) {
-    Fake.Reporter.results.push([result, description, messages]);
+  report: function(result, report) {
+    Fake.Reporter.results.push([result, report]);
     return [];
   }
 };
@@ -36,19 +36,20 @@ Moksi.describe('Moksi.Context', {
   'reports succeeding tests with proper result and description': function() {
     var success = Fake.Reporter.results[0];
     
-    this.expects(success[0]).equals('ok');
-    this.expects(success[1]).equals('should succeed');
-    this.expects(success[2]).empty();
+    this.expects(success[0]).equals('should succeed');
+    this.expects(success[1].result).equals('ok');
+    this.expects(success[1].expectationCount).equals(2);
+    this.expects(success[1].contents).empty();
   },
   
   'reports failing tests with proper result, description, and messages': function() {
     var failure = Fake.Reporter.results[1];
     
-    this.expects(failure[0]).equals('not ok');
-    this.expects(failure[1]).equals('should fail');
-    
-    this.expects(failure[2].length).equals(2);
-    this.expects(failure[2][0]).equals('expected <0> to be equal to <1>');
-    this.expects(failure[2][1]).equals('expected <0> to be equal to <2>');
+    this.expects(failure[0]).equals('should fail');
+    this.expects(failure[1].result).equals('not ok');
+    this.expects(failure[1].expectationCount).equals(2);
+    this.expects(failure[1].contents.length).equals(2);
+    this.expects(failure[1].contents[0]).equals('expected ‘0’ to be equal to ‘1’');
+    this.expects(failure[1].contents[1]).equals('expected ‘0’ to be equal to ‘2’');
   }
 });
