@@ -63,3 +63,47 @@ Moksi.describe('Moksi.Expectations.Collection', {
     this.expects(collection.report().expectationCount).equals(2);
   }
 });
+
+Fake = {};
+Fake.Collection = {
+  captured: [],
+  capture: function(result) {
+    Fake.Collection.captured.push(result);
+  }
+}
+
+Moksi.describe('Moksi.Expectations.Subject', {
+  'tests equality of simple objects': function() {
+    Fake.Collection.captured = [];
+    var examples = [
+      [1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]
+    ];
+    
+    examples.each(function(example) {
+      var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: true});
+      subject.equals(example[1]);
+    }, this);
+    
+    this.expects(Fake.Collection.captured.length).equals(examples.length);
+    this.expects(Fake.Collection.captured.all(function(element) {
+      return element == 'ok';
+    })).truthy();
+  },
+  
+  'tests inequality of simple objects': function() {
+    Fake.Collection.captured = [];
+    var examples = [
+      [1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]
+    ];
+    
+    examples.each(function(example) {
+      var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: true});
+      subject.equals(example[1]);
+    }, this);
+    
+    this.expects(Fake.Collection.captured.length).equals(examples.length);
+    this.expects(Fake.Collection.captured.all(function(element) {
+      return element == 'not ok';
+    })).truthy();
+  }
+});

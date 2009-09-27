@@ -38,35 +38,46 @@ Moksi.Expectations.Subject = Class.create({
     this.options    = options;
   },
   
-  equals: function(expected) {
-    if ((this.subject == expected) == this.options.result) {
+  _assert: function(result, message) {
+    if (result == this.options.result)
+    {
       this.collection.capture('ok');
     } else {
-      this.collection.capture('not ok', 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’');
+      this.collection.capture('not ok', message);
     }
+  },
+  
+  equals: function(expected) {
+    this._assert(
+      this.subject == expected,
+      'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’'
+    )
   },
   
   equalsArray: function(expected) {
-    if (this.subject.length != expected.length) return false;
+    var equals = true;
     
-    var success = true;
-    for (i=0; i < expected.length; i++) {
-      if (this.subject[i] != expected[i]) success = false; break;
-    }
-    
-    if (success) {
-      this.collection.capture('ok');
+    if (this.subject.length != expected.length) {
+      equals = false;
     } else {
-      this.collection.capture('not ok', 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']');
+      for (i=0; i < expected.length; i++) {
+        if (this.subject[i] != expected[i]) equals = false; break;
+      }
     }
+    
+    this._assert(equals, 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']');
+  },
+  
+  truthy: function() {
+    this._assert(this.subject, 'expected ‘'+this.subject+'’ to be true');
+  },
+  
+  falsy: function() {
+    this._assert(!this.subject, 'expected ‘'+this.subject+'’ to be false');
   },
   
   empty: function() {
-    if ((this.subject.length == 0) == this.options.result) {
-      this.collection.capture('ok');
-    } else {
-      this.collection.capture('not ok', 'expected ‘'+this.subject+'’ to be empty');
-    }
+    this._assert(this.subject.length == 0, 'expected ‘'+this.subject+'’ to be empty');
   }
 });
 
