@@ -1,20 +1,22 @@
 Moksi.Expectations = {};
 
-Moksi.Expectations.Collection = {
-  results: [],
+Moksi.Expectations.Collection = Class.create({
+  initialize: function() {
+    this.results = [];
+  },
   
   capture: function(result, message) {
-    Moksi.Expectations.Collection.results.push({result: result, message: message});
+    this.results.push({result: result, message: message});
   },
   
   flush: function() {
-    var results = Moksi.Expectations.Collection.results;
-    Moksi.Expectations.Collection.results = [];
+    var results = this.results;
+    this.results = [];
     return results;
   },
   
   report: function() {
-    var expectations = Moksi.Expectations.Collection.flush();
+    var expectations = this.flush();
     var report = {result: 'ok', contents: [], expectationCount: 0};
     
     expectations.each(function(expectation) {
@@ -27,39 +29,57 @@ Moksi.Expectations.Collection = {
     
     return report;
   }
-};
+});
 
 Moksi.Expectations.Subject = Class.create({
-  initialize: function(subject, options) {
-    this.subject = subject;
-    this.options = options;
+  initialize: function(subject, collection, options) {
+    this.subject    = subject;
+    this.collection = collection;
+    this.options    = options;
   },
   
   equals: function(expected) {
     if ((this.subject == expected) == this.options.result) {
-      Moksi.Expectations.Collection.capture('ok');
+      this.collection.capture('ok');
     } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’');
+      this.collection.capture('not ok', 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’');
+    }
+  },
+  
+  equalsArray: function(expected) {
+    if (this.subject.length != expected.length) return false;
+    
+    var success = true;
+    for (i=0; i < expected.length; i++) {
+      if (this.subject[i] != expected[i]) success = false; break;
+    }
+    
+    if (success) {
+      this.collection.capture('ok');
+    } else {
+      this.collection.capture('not ok', 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']');
     }
   },
   
   empty: function() {
     if ((this.subject.length == 0) == this.options.result) {
-      Moksi.Expectations.Collection.capture('ok');
+      this.collection.capture('ok');
     } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be empty');
+      this.collection.capture('not ok', 'expected ‘'+this.subject+'’ to be empty');
     }
   }
 });
 
 Moksi.Expectations.Methods = function() {
+  var _expectations = new Moksi.Expectations.Collection();
+  
   function expects(subject) {
-    return new Moksi.Expectations.Subject(subject, {result: true});
+    return new Moksi.Expectations.Subject(subject, _expectations, {result: true});
   }
 
   function rejects(subject) {
-    return new Moksi.Expectations.Subject(subject, {result: false});
+    return new Moksi.Expectations.Subject(subject, _expectations, {result: false});
   }
   
-  return {expects: expects, rejects: rejects};
+  return {_expectations: _expectations, expects: expects, rejects: rejects};
 }();

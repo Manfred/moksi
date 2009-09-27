@@ -13,7 +13,7 @@ Moksi.Context = Class.create({
   run: function() {
     this.cases.each(function(test) {
       test.value.bind(this.cases)();
-      var report = Moksi.Expectations.Collection.report();
+      var report = Moksi.Expectations.Methods._expectations.report();
       this.reporter.report(test.key, report);
     }, this);
   }
