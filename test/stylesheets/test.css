@@ -14,12 +14,13 @@ h2 .test-count
   color: #777;
   font-size: 70%;
   font-style: italic;
-  float:  right;
+  float: right;
 }
 table
 {
   border-collapse: collapse;
   width: 100%;
+  margin-bottom: 20px;
 }
 td
 {
@@ -31,7 +32,8 @@ td.result
 {
   font-weight: bold;
   font-variant: small-caps;
-  text-align:  right;
+  text-align: right;
+  width: 1px;
 }
 tr.ok td.result
 {
@@ -51,7 +53,3 @@ span.message-part
 {
   display: block;
 }
-/*.invisible
-{
-  display: none;
-}*/
