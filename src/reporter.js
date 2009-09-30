@@ -25,11 +25,11 @@ Moksi.Reporter = Class.create({
       default:
         var assertions = report.expectationCount + ' assertions';
     };
-    var message = report.contents.map(function(message) {
+    var messages = report.contents.map(function(message) {
       return this.templates.message.evaluate({message: message.escapeHTML()});
     }, this).join(' ');
     $(this.domID).insert({bottom: this.templates.result.evaluate({
-      result: report.result, description: description.escapeHTML(), assertions: assertions, message: report.contents
+      result: report.result, description: description.escapeHTML(), assertions: assertions, message: messages
     })});
   }
 });
