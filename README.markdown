@@ -20,7 +20,7 @@ Moksi is an all-in-one JavaScript testing framework with a lot of salt, but easy
       },
   
       'describes itself in a blurb': function() {
-        this.expects(this.person.toBlurb()).equals('Alice is a happy person.');
+        expects(this.person.toBlurb()).equals('Alice is a happy person.');
       }
     });
 

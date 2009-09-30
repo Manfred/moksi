@@ -49,7 +49,7 @@ Moksi.Expectations.Subject = Class.create({
   
   equals: function(expected) {
     this._assert(
-      this.subject == expected,
+      Moksi.Object.isEqual(this.subject, expected),
       'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’'
     )
   },

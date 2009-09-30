@@ -3,16 +3,27 @@ Moksi.Context = Class.create({
     options = options || {};
     
     this.subject  = subject;
-    this.cases    = $H(cases);
+    this.suite    = cases;
+    this.cases    = $H(cases).select(function(testCase) {
+      return Object.isFunction(testCase.value) && (testCase.key != 'setup') && (testCase.key != 'teardown');
+    });
     this.reporter = options.reporter || new Moksi.Reporter();
     
     Object.extend(this.cases, Moksi.Expectations.Methods);
-    this.reporter.plan(subject, this.cases.keys().length);
+    
+    this.reporter.plan(subject, this.cases.length);
   },
   
   run: function() {
     this.cases.each(function(test) {
-      test.value.bind(this.cases)();
+      var suite   = this.suite;
+      var helpers = this.suite.helpers;
+      
+      Object.extend(test.value, (function() {
+        Object.extend(this, helpers);
+        Object.extend(this, Moksi.Expectations.Methods);
+      })())();
+      
       var report = Moksi.Expectations.Methods._expectations.report();
       this.reporter.report(test.key, report);
     }, this);

@@ -21,6 +21,8 @@ var Moksi = {
   }
 };
 
+//= require "object"
+
 //= require "expectations"
 
 //= require "context"
