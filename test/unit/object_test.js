@@ -44,5 +44,44 @@ Moksi.describe('Moksi.Object', {
       [['a'],['a','b']],
       [[0, 0],[0]]
     ]);
+  },
+  
+  'test complex object equality': function() {
+    var f = function() { document.write('Nuff sed') };
+    var g = function() { document.write('Word…') };
+    
+    var left = {a: 1};
+    left.b = {};
+    var right = {a: 1};
+    right.b = {};
+    
+    expectEqual([
+      [{},{}],
+      [{a: 1}, {a: 1}],
+      [{a: 2, 'b': 3}, {a: 2, 'b': 3}],
+      [{f: f}, {f: f}],
+      [{a: 1, name: g, other: f}, {a: 1, name: g, other: f}],
+      [left, right]
+    ]);
+  },
+  
+  'test complex object inequality': function() {
+    var f = function() { document.write('Nuff sed') };
+    var g = function() { document.write('Word…') };
+
+    var left = {a: 1};
+    left.b = {b: 2};
+    var right = {a: 1};
+    right.b = {b: 3};
+    
+    expectNotEqual([
+      [{a: 1}, {a: 2}],
+      [{a: 1, b: 3}, {a: 1, b: 2}],
+      [{a: 1, b: 3}, {a: 1}],
+      [{a: 1}, {a: 1, c: 5}],
+      [{f: f}, {f: g}],
+      [{a: 1, name: f, other: g}, {a: 1, name: g, other: f}],
+      [left, right]
+    ]);
   }
 });
