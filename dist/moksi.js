@@ -9,7 +9,8 @@ var Moksi = {
 
   describe: function(subject, cases, options) {
     var context = new Moksi.Context(subject, cases, options);
-    return context.run();
+    context.run();
+    return context;
   },
 
   require: function(filename) {
@@ -21,23 +22,59 @@ var Moksi = {
   }
 };
 
+Moksi.Object = {
+  isEqual: function(left, right) {
+    if (left && (typeof left == 'function')) {
+      return left == right;
+    } else if (left && (typeof left.length == 'number') && (typeof left != 'string')) {
+      return Moksi.Object.isEqualEnumerable(left, right);
+    } else if (typeof left == 'object') {
+      return Moksi.Object.isEqualObject(left, right);
+    } else {
+      return left == right;
+    }
+  },
+
+  isEqualEnumerable: function(left, right) {
+    if (left.length != right.length) return false;
+
+    for(i=0; i < left.length; i++) {
+      if (!this.isEqual(left[i], right[i])) return false;
+    }
+
+    return true;
+  },
+
+  isEqualObject: function(left, right) {
+    for (var key in left) {
+      if (!this.isEqual(left[key], right[key])) return false;
+    }
+    for (var key in right) {
+      if (!this.isEqual(left[key], right[key])) return false;
+    }
+    return true;
+  }
+};
+
 Moksi.Expectations = {};
 
-Moksi.Expectations.Collection = {
-  results: [],
+Moksi.Expectations.Collection = Class.create({
+  initialize: function() {
+    this.results = [];
+  },
 
   capture: function(result, message) {
-    Moksi.Expectations.Collection.results.push({result: result, message: message});
+    this.results.push({result: result, message: message});
   },
 
   flush: function() {
-    var results = Moksi.Expectations.Collection.results;
-    Moksi.Expectations.Collection.results = [];
+    var results = this.results;
+    this.results = [];
     return results;
   },
 
   report: function() {
-    var expectations = Moksi.Expectations.Collection.flush();
+    var expectations = this.flush();
     var report = {result: 'ok', contents: [], expectationCount: 0};
 
     expectations.each(function(expectation) {
@@ -50,41 +87,74 @@ Moksi.Expectations.Collection = {
 
     return report;
   }
-};
+});
 
 Moksi.Expectations.Subject = Class.create({
-  initialize: function(subject, options) {
-    this.subject = subject;
-    this.options = options;
+  initialize: function(subject, collection, options) {
+    this.subject    = subject;
+    this.collection = collection;
+    this.options    = options;
+  },
+
+  _assert: function(result, message) {
+    if (result == this.options.result)
+    {
+      this.collection.capture('ok');
+    } else {
+      this.collection.capture('not ok', message);
+    }
   },
 
   equals: function(expected) {
-    if ((this.subject == expected) == this.options.result) {
-      Moksi.Expectations.Collection.capture('ok');
+    this._assert(
+      Moksi.Object.isEqual(this.subject, expected),
+      'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’'
+    )
+  },
+
+  equalsArray: function(expected) {
+    var equals = true;
+
+    if (this.subject.length != expected.length) {
+      equals = false;
     } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’');
+      for (i=0; i < expected.length; i++) {
+        if (this.subject[i] != expected[i]) equals = false; break;
+      }
     }
+
+    this._assert(equals, 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']');
+  },
+
+  notNull: function() {
+    this._assert(this.subject != null, 'expected ‘'+this.subject+'’ to not be null');
+  },
+
+  truthy: function() {
+    this._assert(this.subject, 'expected ‘'+this.subject+'’ to be true');
+  },
+
+  falsy: function() {
+    this._assert(!this.subject, 'expected ‘'+this.subject+'’ to be false');
   },
 
   empty: function() {
-    if ((this.subject.length == 0) == this.options.result) {
-      Moksi.Expectations.Collection.capture('ok');
-    } else {
-      Moksi.Expectations.Collection.capture('not ok', 'expected ‘'+this.subject+'’ to be empty');
-    }
+    this._assert(this.subject.length == 0, 'expected ‘'+this.subject+'’ to be empty');
   }
 });
 
 Moksi.Expectations.Methods = function() {
+  var _expectations = new Moksi.Expectations.Collection();
+
   function expects(subject) {
-    return new Moksi.Expectations.Subject(subject, {result: true});
+    return new Moksi.Expectations.Subject(subject, _expectations, {result: true});
   }
 
   function rejects(subject) {
-    return new Moksi.Expectations.Subject(subject, {result: false});
+    return new Moksi.Expectations.Subject(subject, _expectations, {result: false});
   }
 
-  return {expects: expects, rejects: rejects};
+  return {_expectations: _expectations, expects: expects, rejects: rejects};
 }();
 
 Moksi.Context = Class.create({
@@ -92,17 +162,33 @@ Moksi.Context = Class.create({
     options = options || {};
 
     this.subject  = subject;
-    this.cases    = $H(cases);
+    this.suite    = cases;
+    this.cases    = $H(cases).select(function(testCase) {
+      return Object.isFunction(testCase.value) && (testCase.key != 'setup') && (testCase.key != 'teardown');
+    });
     this.reporter = options.reporter || new Moksi.Reporter();
 
     Object.extend(this.cases, Moksi.Expectations.Methods);
-    this.reporter.plan(subject, this.cases.keys().length);
+
+    this.reporter.plan(subject, this.cases.length);
   },
 
   run: function() {
     this.cases.each(function(test) {
-      test.value.bind(this.cases)();
-      var report = Moksi.Expectations.Collection.report();
+      var suite   = this.suite;
+      var helpers = this.suite.helpers;
+
+      if (suite.setup) suite.setup();
+
+      Object.extend(test.value, (function() {
+        Object.extend(this, {suite: suite})
+        Object.extend(this, helpers);
+        Object.extend(this, Moksi.Expectations.Methods);
+      })())();
+
+      if (suite.teardown) suite.teardown();
+
+      var report = Moksi.Expectations.Methods._expectations.report();
       this.reporter.report(test.key, report);
     }, this);
   }
@@ -135,11 +221,11 @@ Moksi.Reporter = Class.create({
       default:
         var assertions = report.expectationCount + ' assertions';
     };
-    var message = report.contents.map(function(message) {
+    var messages = report.contents.map(function(message) {
       return this.templates.message.evaluate({message: message.escapeHTML()});
     }, this).join(' ');
     $(this.domID).insert({bottom: this.templates.result.evaluate({
-      result: report.result, description: description.escapeHTML(), assertions: assertions, message: report.contents
+      result: report.result, description: description.escapeHTML(), assertions: assertions, message: messages
     })});
   }
 });
