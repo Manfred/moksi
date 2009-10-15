@@ -1,6 +1,14 @@
-Moksi.describe('Example', {
-  setup: function() {},
-  teardown: function() {},
+var context = Moksi.describe('Example', {
+  setup: function() {
+    this.setupCount = this.setupCount || 0;
+    this.setupCount += 1;
+  },
+  
+  teardown: function() {
+    this.teardownCount = this.teardownCount || 0;
+    this.teardownCount += 1;
+  },
+  
   helpers: {},
   
   'should succeed': function() {
@@ -51,5 +59,13 @@ Moksi.describe('Moksi.Context', {
   
   'has access to its helpers': function() {
     expects(globalHelper()).equals(true);
+  },
+  
+  'runs its setup before each test': function() {
+    expects(context.suite.setupCount).equals(2);
+  },
+  
+  'runs its teardown after each test': function() {
+    expects(context.suite.teardownCount).equals(2);
   }
 });

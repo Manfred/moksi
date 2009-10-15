@@ -19,10 +19,15 @@ Moksi.Context = Class.create({
       var suite   = this.suite;
       var helpers = this.suite.helpers;
       
+      if (suite.setup) suite.setup();
+      
       Object.extend(test.value, (function() {
+        Object.extend(this, {suite: suite})
         Object.extend(this, helpers);
         Object.extend(this, Moksi.Expectations.Methods);
       })())();
+      
+      if (suite.teardown) suite.teardown();
       
       var report = Moksi.Expectations.Methods._expectations.report();
       this.reporter.report(test.key, report);
