@@ -73,7 +73,7 @@ Fake.Collection = {
 }
 
 Moksi.describe('Moksi.Expectations.Subject', {
-  'tests equality of simple objects': function() {
+  'reports success for successful equality tests': function() {
     Fake.Collection.captured = [];
     var examples = [
       [1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]
@@ -90,7 +90,7 @@ Moksi.describe('Moksi.Expectations.Subject', {
     })).truthy();
   },
   
-  'tests inequality of simple objects': function() {
+  'reports failure for failed equality tests': function() {
     Fake.Collection.captured = [];
     var examples = [
       [1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]
@@ -105,5 +105,30 @@ Moksi.describe('Moksi.Expectations.Subject', {
     expects(Fake.Collection.captured.all(function(element) {
       return element == 'not ok';
     })).truthy();
+  },
+  
+  'reports success for successful not null tests': function() {
+    Fake.Collection.captured = [];
+    var examples = [1, 0, 'a', false, true];
+    
+    examples.each(function(example) {
+      var subject = new Moksi.Expectations.Subject(example, Fake.Collection, {result: true});
+      subject.notNull();
+    }, this);
+    
+    expects(Fake.Collection.captured.length).equals(examples.length);
+    expects(Fake.Collection.captured.all(function(element) {
+      return element == 'ok';
+    })).truthy();
+  },
+  
+  'reports failure for failed not null tests': function() {
+    Fake.Collection.captured = [];
+    
+    var subject = new Moksi.Expectations.Subject(null, Fake.Collection, {result: true});
+    subject.notNull();
+    
+    expects(Fake.Collection.captured.length).equals(1);
+    expects(Fake.Collection.captured.first()).equals('not ok');
   }
 });
