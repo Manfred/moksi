@@ -64,7 +64,7 @@ Moksi.describe('Moksi.Expectations.Collection', {
   }
 });
 
-Fake = {};
+var Fake = {};
 Fake.Collection = {
   captured: [],
   capture: function(result) {
@@ -72,43 +72,70 @@ Fake.Collection = {
   }
 }
 
-Moksi.describe('Moksi.Expectations.Subject', {
-  'reports success for successful equality tests': function() {
+var BaseTestSuite = {
+  setup: function() {
     Fake.Collection.captured = [];
-    var examples = [
-      [1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]
-    ];
-    
-    examples.each(function(example) {
-      var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: true});
-      subject.equals(example[1]);
-    }, this);
-    
-    expects(Fake.Collection.captured.length).equals(examples.length);
-    expects(Fake.Collection.captured.all(function(element) {
-      return element == 'ok';
-    })).truthy();
   },
   
-  'reports failure for failed equality tests': function() {
+  helpers: {
+    expectAssertionsRun: function(options) {
+      options.examples.each(function(example) {
+        var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: options.asserting});
+        subject.equals(example[1]);
+      }, this);
+      
+      expects(Fake.Collection.captured.length).equals(options.examples.length);
+      expects(Fake.Collection.captured.all(function(element) {
+        return element == options.withResult;
+      })).truthy();
+    }
+  }
+}
+
+Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(BaseTestSuite, {
+  'reports success for successful expected tests': function() {
+    // For example expects(1).equals(1) should succeed
+    expectAssertionsRun({
+      examples:   [[1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]],
+      asserting:  true,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed expected tests': function() {
+    // For example expects(1).equals(2) should fail
+    expectAssertionsRun({
+      examples:   [[1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]],
+      asserting:  true,
+      withResult: 'not ok'
+    });
+  },
+  
+  'reports success for successful rejected tests': function() {
+    // For example rejects(1).equals(2) should succeed
+    expectAssertionsRun({
+      examples:   [[1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]],
+      asserting:  false,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed rejected tests': function() {
+    // For example rejects(1).equals(1) should fail
+    expectAssertionsRun({
+      examples:   [[1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]],
+      asserting:  false,
+      withResult: 'not ok'
+    });
+  }
+}));
+
+Moksi.describe('Moksi.Expectations.Subject, concerning other assertions', {
+  setup: function() {
     Fake.Collection.captured = [];
-    var examples = [
-      [1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]
-    ];
-    
-    examples.each(function(example) {
-      var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: true});
-      subject.equals(example[1]);
-    }, this);
-    
-    expects(Fake.Collection.captured.length).equals(examples.length);
-    expects(Fake.Collection.captured.all(function(element) {
-      return element == 'not ok';
-    })).truthy();
   },
   
   'reports success for successful not null tests': function() {
-    Fake.Collection.captured = [];
     var examples = [1, 0, 'a', false, true];
     
     examples.each(function(example) {
@@ -123,8 +150,6 @@ Moksi.describe('Moksi.Expectations.Subject', {
   },
   
   'reports failure for failed not null tests': function() {
-    Fake.Collection.captured = [];
-    
     var subject = new Moksi.Expectations.Subject(null, Fake.Collection, {result: true});
     subject.notNull();
     
