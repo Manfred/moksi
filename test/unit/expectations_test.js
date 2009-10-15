@@ -78,10 +78,10 @@ var BaseTestSuite = {
   },
   
   helpers: {
-    expectAssertionsRun: function(options) {
+    expectAssertionsRun: function(method, options) {
       options.examples.each(function(example) {
         var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: options.asserting});
-        subject.equals(example[1]);
+        subject[method](example[1]);
       }, this);
       
       expects(Fake.Collection.captured.length).equals(options.examples.length);
@@ -95,7 +95,7 @@ var BaseTestSuite = {
 Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(BaseTestSuite, {
   'reports success for successful expected tests': function() {
     // For example expects(1).equals(1) should succeed
-    expectAssertionsRun({
+    expectAssertionsRun('equals', {
       examples:   [[1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]],
       asserting:  true,
       withResult: 'ok'
@@ -104,7 +104,7 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(Ba
   
   'reports failure for failed expected tests': function() {
     // For example expects(1).equals(2) should fail
-    expectAssertionsRun({
+    expectAssertionsRun('equals', {
       examples:   [[1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]],
       asserting:  true,
       withResult: 'not ok'
@@ -113,7 +113,7 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(Ba
   
   'reports success for successful rejected tests': function() {
     // For example rejects(1).equals(2) should succeed
-    expectAssertionsRun({
+    expectAssertionsRun('equals', {
       examples:   [[1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]],
       asserting:  false,
       withResult: 'ok'
@@ -122,13 +122,52 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(Ba
   
   'reports failure for failed rejected tests': function() {
     // For example rejects(1).equals(1) should fail
-    expectAssertionsRun({
+    expectAssertionsRun('equals', {
       examples:   [[1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]],
       asserting:  false,
       withResult: 'not ok'
     });
   }
 }));
+
+Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.extend(BaseTestSuite, {
+  'reports success for successful expected tests': function() {
+    // For example expects([1]).equalsArray([1]) should succeed
+    expectAssertionsRun('equalsArray', {
+      examples:   [[[1], [1]], [[1,2], [1,2]], [['ok'], ['ok']], [[2.0], [2.0]]],
+      asserting:  true,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed expected tests': function() {
+    // For example expects([1]).equalsArray([2]) should fail
+    expectAssertionsRun('equalsArray', {
+      examples:   [[[1], [2]], [[1,2], [2,1]], [['ok'], ['not ok']], [[2.0], [2.1]]],
+      asserting:  true,
+      withResult: 'not ok'
+    });
+  },
+  
+  'reports success for successful rejected tests': function() {
+    // For example rejects([1]).equalsArray([2]) should succeed
+    expectAssertionsRun('equalsArray', {
+      examples:   [[[1], [2]], [[1,2], [2,1]], [['ok'], ['not ok']], [[2.0], [2.1]]],
+      asserting:  false,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed rejected tests': function() {
+    // For example rejects([1]).equalsArray([1]) should fail
+    expectAssertionsRun('equalsArray', {
+      examples:   [[[1], [1]], [[1,2], [1,2]], [['ok'], ['ok']], [[2.0], [2.0]]],
+      asserting:  false,
+      withResult: 'not ok'
+    });
+  }
+}));
+
 
 Moksi.describe('Moksi.Expectations.Subject, concerning other assertions', {
   setup: function() {
