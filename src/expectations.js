@@ -17,13 +17,13 @@ Moksi.Expectations.Collection = Class.create({
   
   report: function() {
     var expectations = this.flush();
-    var report = {result: 'ok', contents: [], expectationCount: 0};
+    var report = {result: 'ok', messages: [], expectationCount: 0};
     
     expectations.each(function(expectation) {
       report.expectationCount += 1;
       if (expectation.result == 'not ok') {
         report.result = 'not ok';
-        report.contents.push(expectation.message);
+        report.messages.push(expectation.message);
       }
     });
     

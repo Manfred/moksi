@@ -47,7 +47,7 @@ Moksi.describe('Moksi.Expectations.Collection', {
     collection.capture('not ok', 'something else is also bad');
     
     var report = collection.report();
-    expects(report.contents).equalsArray(['something is not ok', 'something else is also bad']);
+    expects(report.messages).equalsArray(['something is not ok', 'something else is also bad']);
   },
   
   'reports the correct expectation count': function() {

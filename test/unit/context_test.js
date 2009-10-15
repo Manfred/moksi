@@ -43,7 +43,7 @@ Moksi.describe('Moksi.Context', {
     expects(success[0]).equals('should succeed');
     expects(success[1].result).equals('ok');
     expects(success[1].expectationCount).equals(2);
-    expects(success[1].contents).empty();
+    expects(success[1].messages).empty();
   },
   
   'reports failing tests with proper result, description, and messages': function() {
@@ -52,9 +52,9 @@ Moksi.describe('Moksi.Context', {
     expects(failure[0]).equals('should fail');
     expects(failure[1].result).equals('not ok');
     expects(failure[1].expectationCount).equals(2);
-    expects(failure[1].contents.length).equals(2);
-    expects(failure[1].contents[0]).equals('expected ‘0’ to be equal to ‘1’');
-    expects(failure[1].contents[1]).equals('expected ‘0’ to be equal to ‘2’');
+    expects(failure[1].messages.length).equals(2);
+    expects(failure[1].messages[0]).equals('expected ‘0’ to be equal to ‘1’');
+    expects(failure[1].messages[1]).equals('expected ‘0’ to be equal to ‘2’');
   },
   
   'has access to its helpers': function() {

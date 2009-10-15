@@ -41,30 +41,30 @@ Moksi.describe('Moksi.Reporter', {
   'inserts HTML with the test report': function() {
     var reporter = new Moksi.Reporter({output: this.suite.output});
     reporter.plan('Planting tomatoes', 1);
-    reporter.report('results in juicy tomatoes', {expectationCount: 2, contents: ["didn't plant them right", "not enough sun"]})
+    reporter.report('results in juicy tomatoes', {expectationCount: 2, messages: ["didn't plant them right", "not enough sun"]})
     
     var context = this.suite.output.select('div.context').last();
     var row     = context.down('tr');
     
-    expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (2 assertions)</td><td class="message"><span class="message-part">didn\'t plant them right</span> <span class="message-part">not enough sun</span></td>');
+    expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (2 assertions)</td><td class="messages"><span class="message-part">didn\'t plant them right</span> <span class="message-part">not enough sun</span></td>');
   },
   
   'properly reports the number of assertions': function() {
     var reporter = new Moksi.Reporter({output: this.suite.output});
     reporter.plan('Planting tomatoes', 1);
-    reporter.report('results in juicy tomatoes', {expectationCount: 0, contents: []})
+    reporter.report('results in juicy tomatoes', {expectationCount: 0, messages: []})
     
     var context = this.suite.output.select('div.context').last();
     var row     = context.select('tr').last();
     
-    expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (No assertions)</td><td class="message"></td>');
+    expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (No assertions)</td><td class="messages"></td>');
     
     
-    reporter.report('results in juicy tomatoes', {expectationCount: 1, contents: ["didn't plant them right"]})
+    reporter.report('results in juicy tomatoes', {expectationCount: 1, messages: ["didn't plant them right"]})
     
     var context = this.suite.output.select('div.context').last();
     var row     = context.select('tr').last();
     
-    expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (One assertion)</td><td class="message"><span class="message-part">didn\'t plant them right</span></td>');
+    expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (One assertion)</td><td class="messages"><span class="message-part">didn\'t plant them right</span></td>');
   }
 });
