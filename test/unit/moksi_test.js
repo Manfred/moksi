@@ -1,0 +1,2 @@
+Moksi.describe('Moksi', {
+});

@@ -9,7 +9,7 @@ var Moksi = {
   
   describe: function(subject, cases, options) {
     var context = new Moksi.Context(subject, cases, options);
-    return context.run();
+    context.run();
   },
   
   require: function(filename) {

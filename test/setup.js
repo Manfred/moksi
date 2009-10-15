@@ -1,6 +1,7 @@
 var Runner = {
   loadContext: function(options) {
     var testFile = '../' + options['test'] + '_test.js';
+    Moksi.require('../fake_reporter.js')
     Moksi.require(testFile);
   },
   
