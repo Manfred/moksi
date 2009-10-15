@@ -5,7 +5,7 @@
  */
 
 var Moksi = {
-  VERSION: "0.1.0",
+  VERSION: "0.2.0",
   
   describe: function(subject, cases, options) {
     var context = new Moksi.Context(subject, cases, options);

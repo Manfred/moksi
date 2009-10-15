@@ -5,7 +5,7 @@
  */
 
 var Moksi = {
-  VERSION: "0.1.0",
+  VERSION: "0.2.0",
 
   describe: function(subject, cases, options) {
     var context = new Moksi.Context(subject, cases, options);
@@ -75,13 +75,13 @@ Moksi.Expectations.Collection = Class.create({
 
   report: function() {
     var expectations = this.flush();
-    var report = {result: 'ok', contents: [], expectationCount: 0};
+    var report = {result: 'ok', messages: [], expectationCount: 0};
 
     expectations.each(function(expectation) {
       report.expectationCount += 1;
       if (expectation.result == 'not ok') {
         report.result = 'not ok';
-        report.contents.push(expectation.message);
+        report.messages.push(expectation.message);
       }
     });
 
@@ -221,17 +221,17 @@ Moksi.Reporter = Class.create({
       default:
         var assertions = report.expectationCount + ' assertions';
     };
-    var messages = report.contents.map(function(message) {
+    var messages = report.messages.map(function(message) {
       return this.templates.message.evaluate({message: message.escapeHTML()});
     }, this).join(' ');
     $(this.domID).insert({bottom: this.templates.result.evaluate({
-      result: report.result, description: description.escapeHTML(), assertions: assertions, message: messages
+      result: report.result, description: description.escapeHTML(), assertions: assertions, messages: messages
     })});
   }
 });
 
 Moksi.Reporter.Templates = {
   context: new Template('<div class="context"><h2>#{description} <span class="test-count">(#{tests})</span></h2><table><tbody id="#{token}"></tbody></table></div>'),
-  result:  new Template('<tr class="test #{result}"><td class="result">#{result}</td><td class="description">#{description} (#{assertions})</td><td class="message">#{message}</td></tr>'),
+  result:  new Template('<tr class="test #{result}"><td class="result">#{result}</td><td class="description">#{description} (#{assertions})</td><td class="messages">#{messages}</td></tr>'),
   message: new Template('<span class="message-part">#{message}</span>')
 };
