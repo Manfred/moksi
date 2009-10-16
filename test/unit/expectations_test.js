@@ -197,32 +197,3 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.exte
     });
   }
 }));
-
-
-Moksi.describe('Moksi.Expectations.Subject, concerning other assertions', {
-  setup: function() {
-    Fake.Collection.captured = [];
-  },
-  
-  'reports success for successful not null tests': function() {
-    var examples = [1, 0, 'a', false, true];
-    
-    examples.each(function(example) {
-      var subject = new Moksi.Expectations.Subject(example, Fake.Collection, {result: true});
-      subject.notNull();
-    }, this);
-    
-    expects(Fake.Collection.captured.length).equals(examples.length);
-    expects(Fake.Collection.captured.all(function(result) {
-      return result.result == 'ok';
-    })).truthy();
-  },
-  
-  'reports failure for failed not null tests': function() {
-    var subject = new Moksi.Expectations.Subject(null, Fake.Collection, {result: true});
-    subject.notNull();
-    
-    expects(Fake.Collection.captured.length).equals(1);
-    expects(Fake.Collection.captured.first().result).equals('not ok');
-  }
-});

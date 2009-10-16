@@ -72,12 +72,6 @@ Moksi.Expectations.Subject = Class.create({
     });
   },
   
-  notNull: function() {
-    this._assert(this.subject != null, {
-      expects: 'expected ‘'+this.subject+'’ to not be null'
-    });
-  },
-  
   truthy: function() {
     this._assert(this.subject, {
       expects: 'expected ‘'+this.subject+'’ to be true'
