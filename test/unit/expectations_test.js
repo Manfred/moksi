@@ -67,8 +67,8 @@ Moksi.describe('Moksi.Expectations.Collection', {
 var Fake = {};
 Fake.Collection = {
   captured: [],
-  capture: function(result) {
-    Fake.Collection.captured.push(result);
+  capture: function(result, message) {
+    Fake.Collection.captured.push({result: result, message: message});
   }
 }
 
@@ -85,9 +85,15 @@ var BaseTestSuite = {
       }, this);
       
       expects(Fake.Collection.captured.length).equals(options.examples.length);
-      expects(Fake.Collection.captured.all(function(element) {
-        return element == options.withResult;
+      expects(Fake.Collection.captured.all(function(result) {
+        return result.result == options.withResult;
       })).truthy();
+      
+      if (options.withMessages) {
+        var i; for (i=0; i < options.withMessages.length; i++) {
+          expects(Fake.Collection.captured[i].message).equals(options.withMessages[i]);
+        }
+      }
     }
   }
 }
@@ -107,7 +113,13 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(Ba
     expectAssertionsRun('equals', {
       examples:   [[1, 2], [2, 1], ['ok', 'not ok'], [2.0, 2.1]],
       asserting:  true,
-      withResult: 'not ok'
+      withResult: 'not ok',
+      withMessages: [
+        'expected ‘1’ to be equal to ‘2’',
+        'expected ‘2’ to be equal to ‘1’',
+        'expected ‘ok’ to be equal to ‘not ok’',
+        'expected ‘2’ to be equal to ‘2.1’'
+      ]
     });
   },
   
@@ -123,9 +135,15 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(Ba
   'reports failure for failed rejected tests': function() {
     // For example rejects(1).equals(1) should fail
     expectAssertionsRun('equals', {
-      examples:   [[1, 1], [2, 2], ['ok', 'ok'], [2.0, 2.0]],
+      examples:   [[1, 1], [2, 2], ['ok', 'ok'], [2.1, 2.1]],
       asserting:  false,
-      withResult: 'not ok'
+      withResult: 'not ok',
+      withMessages: [
+        'expected ‘1’ to not be equal to ‘1’',
+        'expected ‘2’ to not be equal to ‘2’',
+        'expected ‘ok’ to not be equal to ‘ok’',
+        'expected ‘2.1’ to not be equal to ‘2.1’'
+      ]
     });
   }
 }));
@@ -145,7 +163,13 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.exte
     expectAssertionsRun('equalsArray', {
       examples:   [[[1], [2]], [[1,2], [2,1]], [['ok'], ['not ok']], [[2.0], [2.1]]],
       asserting:  true,
-      withResult: 'not ok'
+      withResult: 'not ok',
+      withMessages: [
+        'expected [1] to be equal to [2]',
+        'expected [1, 2] to be equal to [2, 1]',
+        'expected [ok] to be equal to [not ok]',
+        'expected [2] to be equal to [2.1]'
+      ]
     });
   },
   
@@ -161,9 +185,15 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.exte
   'reports failure for failed rejected tests': function() {
     // For example rejects([1]).equalsArray([1]) should fail
     expectAssertionsRun('equalsArray', {
-      examples:   [[[1], [1]], [[1,2], [1,2]], [['ok'], ['ok']], [[2.0], [2.0]]],
+      examples:   [[[1], [1]], [[1,2], [1,2]], [['ok'], ['ok']], [[2.1], [2.1]]],
       asserting:  false,
-      withResult: 'not ok'
+      withResult: 'not ok',
+      withMessages: [
+        'expected [1] to not be equal to [1]',
+        'expected [1, 2] to not be equal to [1, 2]',
+        'expected [ok] to not be equal to [ok]',
+        'expected [2.1] to not be equal to [2.1]'
+      ]
     });
   }
 }));
@@ -183,8 +213,8 @@ Moksi.describe('Moksi.Expectations.Subject, concerning other assertions', {
     }, this);
     
     expects(Fake.Collection.captured.length).equals(examples.length);
-    expects(Fake.Collection.captured.all(function(element) {
-      return element == 'ok';
+    expects(Fake.Collection.captured.all(function(result) {
+      return result.result == 'ok';
     })).truthy();
   },
   
@@ -193,6 +223,6 @@ Moksi.describe('Moksi.Expectations.Subject, concerning other assertions', {
     subject.notNull();
     
     expects(Fake.Collection.captured.length).equals(1);
-    expects(Fake.Collection.captured.first()).equals('not ok');
+    expects(Fake.Collection.captured.first().result).equals('not ok');
   }
 });

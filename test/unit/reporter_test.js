@@ -59,7 +59,6 @@ Moksi.describe('Moksi.Reporter', {
     
     expects(row.innerHTML).equals('<td class="result"></td><td class="description">results in juicy tomatoes (No assertions)</td><td class="messages"></td>');
     
-    
     reporter.report('results in juicy tomatoes', {expectationCount: 1, messages: ["didn't plant them right"]})
     
     var context = this.suite.output.select('div.context').last();

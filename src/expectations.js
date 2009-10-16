@@ -38,20 +38,21 @@ Moksi.Expectations.Subject = Class.create({
     this.options    = options;
   },
   
-  _assert: function(result, message) {
+  _assert: function(result, messages) {
     if (result == this.options.result)
     {
       this.collection.capture('ok');
     } else {
+      var message = this.options.result ? messages.expects : messages.rejects;
       this.collection.capture('not ok', message);
     }
   },
   
   equals: function(expected) {
-    this._assert(
-      Moksi.Object.isEqual(this.subject, expected),
-      'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’'
-    )
+    this._assert(Moksi.Object.isEqual(this.subject, expected), {
+      expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
+      rejects: 'expected ‘'+this.subject+'’ to not be equal to ‘'+expected+'’'
+    })
   },
   
   equalsArray: function(expected) {
@@ -65,23 +66,34 @@ Moksi.Expectations.Subject = Class.create({
       }
     }
     
-    this._assert(equals, 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']');
+    this._assert(equals, {
+      expects: 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']',
+      rejects: 'expected ['+this.subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']'
+    });
   },
   
   notNull: function() {
-    this._assert(this.subject != null, 'expected ‘'+this.subject+'’ to not be null');
+    this._assert(this.subject != null, {
+      expects: 'expected ‘'+this.subject+'’ to not be null'
+    });
   },
   
   truthy: function() {
-    this._assert(this.subject, 'expected ‘'+this.subject+'’ to be true');
+    this._assert(this.subject, {
+      expects: 'expected ‘'+this.subject+'’ to be true'
+    });
   },
   
   falsy: function() {
-    this._assert(!this.subject, 'expected ‘'+this.subject+'’ to be false');
+    this._assert(!this.subject, {
+      expects: 'expected ‘'+this.subject+'’ to be false'
+    });
   },
   
   empty: function() {
-    this._assert(this.subject.length == 0, 'expected ‘'+this.subject+'’ to be empty');
+    this._assert(this.subject.length == 0, {
+      expects: 'expected ‘'+this.subject+'’ to be empty'
+    });
   }
 });
 
