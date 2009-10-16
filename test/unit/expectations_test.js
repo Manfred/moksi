@@ -98,7 +98,7 @@ var BaseTestSuite = {
   }
 }
 
-Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(BaseTestSuite, {
+Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend({
   'reports success for successful expected tests': function() {
     // For example expects(1).equals(1) should succeed
     expectAssertionsRun('equals', {
@@ -146,9 +146,9 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend(Ba
       ]
     });
   }
-}));
+}, BaseTestSuite));
 
-Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.extend(BaseTestSuite, {
+Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.extend({
   'reports success for successful expected tests': function() {
     // For example expects([1]).equalsArray([1]) should succeed
     expectAssertionsRun('equalsArray', {
@@ -196,4 +196,51 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.exte
       ]
     });
   }
-}));
+}, BaseTestSuite));
+
+Moksi.describe('Moksi.Expectations.Subject, concerning truthy', Object.extend({
+  'reports success for successful expected tests': function() {
+    // For example expects(true).truthy() should succeed
+    expectAssertionsRun('truthy', {
+      examples:   [[true], [1]],
+      asserting:  true,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed expected tests': function() {
+    // For example expects(false).truthy() should fail
+    expectAssertionsRun('truthy', {
+      examples:   [[false], [2], [0]],
+      asserting:  true,
+      withResult: 'not ok',
+      withMessages: [
+        'expected ‘false’ to be truthy',
+        'expected ‘2’ to be truthy',
+        'expected ‘0’ to be truthy'
+      ]
+    });
+  },
+  
+  'reports success for successful rejected tests': function() {
+    // For example rejects(false).truthy() should succeed
+    expectAssertionsRun('truthy', {
+      examples:   [[false], [0]],
+      asserting:  false,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed rejected tests': function() {
+    // For example rejects(true).truthy() should fail
+    expectAssertionsRun('truthy', {
+      examples:   [[true], [1]],
+      asserting:  false,
+      withResult: 'not ok',
+      withMessages: [
+        'expected ‘true’ to not be truthy',
+        'expected ‘1’ to not be truthy'
+      ]
+    });
+  }
+}, BaseTestSuite));
