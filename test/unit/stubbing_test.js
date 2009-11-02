@@ -46,3 +46,17 @@ Moksi.describe('Moksi, concerning stubbing', {
     expects(Person.age()).equals(21);
   }
 });
+
+Person = { name: 'Alice' };
+
+var context = Moksi.describe('Example', {
+  'stubs a value': function() {
+    Moksi.stubs(Person, 'name', 'Berend');
+  }
+}, { reporter: Fake.Reporter });
+
+Moksi.describe('Moksi, concerning automatic unstubbing', {
+  'should automatically unstub after running tests': function() {
+    expects(Person.name).equals('Alice');
+  }
+});
