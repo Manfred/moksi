@@ -29,3 +29,5 @@ var Moksi = {
 //= require "context"
 
 //= require "reporter"
+
+//= require "stubbing"

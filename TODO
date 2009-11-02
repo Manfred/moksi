@@ -1,4 +1,3 @@
-- Come up with a list of sensible expectations.
 - Implement stubbing
 - Implement expected method invocations
 - Implement helpers for prototype
