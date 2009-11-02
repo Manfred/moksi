@@ -188,6 +188,7 @@ Moksi.Context = Class.create({
       })())();
 
       if (suite.teardown) suite.teardown();
+      if (Moksi.unstubAll) Moksi.unstubAll();
 
       var report = Moksi.Expectations.Methods._expectations.report();
       this.reporter.report(test.key, report);
