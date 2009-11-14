@@ -79,9 +79,11 @@ Moksi.Expectations.Subject = Class.create({
     });
   },
   
+  // TODO: Find a way to show nicer output for expected values.
   empty: function() {
-    this._assert(this.subject.length == 0, {
-      expects: 'expected ‘'+this.subject+'’ to be empty'
+    this._assert(Moksi.Object.isEmpty(this.subject), {
+      expects: 'expected ‘'+this.subject+'’ to be empty',
+      rejects: 'expected ‘'+this.subject+'’ to not be empty',
     });
   }
 });

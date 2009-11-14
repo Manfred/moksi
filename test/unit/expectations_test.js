@@ -244,3 +244,50 @@ Moksi.describe('Moksi.Expectations.Subject, concerning truthy', Object.extend({
     });
   }
 }, BaseTestSuite));
+
+Moksi.describe('Moksi.Expectations.Subject, concerning empty', Object.extend({
+  'reports success for successful expected tests': function() {
+    // For example expects([]).empty() should succeed
+    expectAssertionsRun('empty', {
+      examples:   [[[]], [{}]],
+      asserting:  true,
+      withResult: 'ok'
+    });
+  },
+
+  'reports failure for failed expected tests': function() {
+    // For example expects(['a']).empty() should fail
+    expectAssertionsRun('empty', {
+      examples:   [[['a', 'b']], [[1]], [{a:1}]],
+      asserting:  true,
+      withResult: 'not ok',
+      withMessages: [
+        'expected ‘a,b’ to be empty',
+        'expected ‘1’ to be empty',
+        'expected ‘[object Object]’ to be empty'
+      ]
+    });
+  },
+
+  'reports success for successful rejected tests': function() {
+    // For example rejects(['a']).empty() should succeed
+    expectAssertionsRun('empty', {
+      examples:   [[['a']], [[1]], [{a:1}]],
+      asserting:  false,
+      withResult: 'ok'
+    });
+  },
+  
+  'reports failure for failed rejected tests': function() {
+    // For example rejects(true).empty() should fail
+    expectAssertionsRun('empty', {
+      examples:   [[[]], [{}]],
+      asserting:  false,
+      withResult: 'not ok',
+      withMessages: [
+        'expected ‘’ to not be empty',
+        'expected ‘[object Object]’ to not be empty'
+      ]
+    });
+  }
+}, BaseTestSuite));
