@@ -23,6 +23,17 @@ var Moksi = {
 };
 
 Moksi.Object = {
+  isEmpty: function(object) {
+    if (object.length > 0) {
+      return false;
+    } else {
+      for (property in object) { if (object.hasOwnProperty(property)) {
+        return false;
+      } }
+    }
+    return true;
+  },
+
   isEqual: function(left, right) {
     if (left && (typeof left == 'function')) {
       return left == right;
@@ -38,7 +49,8 @@ Moksi.Object = {
   isEqualEnumerable: function(left, right) {
     if (left.length != right.length) return false;
 
-    for(i=0; i < left.length; i++) {
+    var i = left.length;
+    while(i--) {
       if (!this.isEqual(left[i], right[i])) return false;
     }
 
@@ -138,8 +150,9 @@ Moksi.Expectations.Subject = Class.create({
   },
 
   empty: function() {
-    this._assert(this.subject.length == 0, {
-      expects: 'expected ‘'+this.subject+'’ to be empty'
+    this._assert(Moksi.Object.isEmpty(this.subject), {
+      expects: 'expected ‘'+this.subject+'’ to be empty',
+      rejects: 'expected ‘'+this.subject+'’ to not be empty',
     });
   }
 });
@@ -237,6 +250,8 @@ Moksi.Reporter.Templates = {
   result:  new Template('<tr class="test #{result}"><td class="result">#{result}</td><td class="description">#{description} (#{assertions})</td><td class="messages">#{messages}</td></tr>'),
   message: new Template('<span class="message-part">#{message}</span>')
 };
+
+if (typeof Moksi == 'undefined') Moksi = {};
 
 Moksi.Stubber = {
   stubbed: [],

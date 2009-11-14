@@ -25,7 +25,8 @@ Moksi.Object = {
   isEqualEnumerable: function(left, right) {
     if (left.length != right.length) return false;
     
-    for(i=0; i < left.length; i++) {
+    var i = left.length;
+    while(i--) {
       if (!this.isEqual(left[i], right[i])) return false;
     }
     

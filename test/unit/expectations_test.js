@@ -279,7 +279,7 @@ Moksi.describe('Moksi.Expectations.Subject, concerning empty', Object.extend({
   },
   
   'reports failure for failed rejected tests': function() {
-    // For example rejects(true).empty() should fail
+    // For example rejects([]).empty() should fail
     expectAssertionsRun('empty', {
       examples:   [[[]], [{}]],
       asserting:  false,

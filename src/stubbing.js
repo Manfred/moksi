@@ -1,3 +1,5 @@
+if (typeof Moksi == 'undefined') Moksi = {};
+
 Moksi.Stubber = {
   stubbed: [],
   
