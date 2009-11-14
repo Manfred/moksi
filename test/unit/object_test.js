@@ -7,9 +7,21 @@ Moksi.describe('Moksi.Object', {
     },
     expectNotEqual: function(examples) {
       examples.each(function(example) {
-        expects(Moksi.Object.isEqual(example[0], example[1])).falsy();
+        rejects(Moksi.Object.isEqual(example[0], example[1])).truthy();
       }, this);
     }
+  },
+  
+  'tests if object is empty': function() {
+    [{}, [], (new Object), (new Array)].each(function(example) {
+      expects(Moksi.Object.isEmpty(example)).truthy();
+    });
+  },
+  
+  'test if object is not empty': function() {
+    [{a:1}, ['a'], (new Array(1,2,3)), (new Object({a:1})), 'a'].each(function(example) {
+      rejects(Moksi.Object.isEmpty(example)).truthy();
+    });
   },
   
   'tests base object equality': function() {

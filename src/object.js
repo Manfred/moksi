@@ -1,4 +1,15 @@
 Moksi.Object = {
+  isEmpty: function(object) {
+    if (object.length > 0) {
+      return false;
+    } else {
+      for (property in object) { if (object.hasOwnProperty(property)) {
+        return false;
+      } }
+    }
+    return true;
+  },
+  
   isEqual: function(left, right) {
     if (left && (typeof left == 'function')) {
       return left == right;
