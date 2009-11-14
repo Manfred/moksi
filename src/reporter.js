@@ -2,7 +2,7 @@ Moksi.Reporter = Class.create({
   initialize: function(options) {
     options = options || {};
     
-    this.domID     = 'test-log-' + new Date().valueOf();
+    this.domID     = 'test-log-' + (new Date).valueOf();
     this.output    = options.output || document.body,
     this.templates = options.templates || Moksi.Reporter.Templates
   },

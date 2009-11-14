@@ -14,7 +14,7 @@ var Moksi = {
   },
   
   require: function(filename) {
-    var uniq = new Date().valueOf();
+    var uniq = (new Date).valueOf();
     var script = document.createElement('script');
     script.type = 'application/javascript';
     script.src = filename + '?' + uniq;

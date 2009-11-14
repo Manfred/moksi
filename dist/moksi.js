@@ -14,7 +14,7 @@ var Moksi = {
   },
 
   require: function(filename) {
-    var uniq = new Date().valueOf();
+    var uniq = (new Date).valueOf();
     var script = document.createElement('script');
     script.type = 'application/javascript';
     script.src = filename + '?' + uniq;
@@ -200,7 +200,7 @@ Moksi.Reporter = Class.create({
   initialize: function(options) {
     options = options || {};
 
-    this.domID     = 'test-log-' + new Date().valueOf();
+    this.domID     = 'test-log-' + (new Date).valueOf();
     this.output    = options.output || document.body,
     this.templates = options.templates || Moksi.Reporter.Templates
   },
