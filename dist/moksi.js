@@ -118,6 +118,10 @@ Moksi.Expectations.Subject = Class.create({
     }
   },
 
+  _delayAssert: function(assertion) {
+
+  }
+
   equals: function(expected) {
     this._assert(Moksi.Object.isEqual(this.subject, expected), {
       expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
@@ -154,6 +158,15 @@ Moksi.Expectations.Subject = Class.create({
       expects: 'expected ‘'+this.subject+'’ to be empty',
       rejects: 'expected ‘'+this.subject+'’ to not be empty',
     });
+  },
+
+  receives: function(functionName, options) {
+    this._assert(function() {
+      this._assert(Moksi.Invocations.isCalled(this.subject, functionName), {
+        expects: '',
+        rejects: ''
+      });
+    }.bind(this));
   }
 });
 
