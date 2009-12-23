@@ -30,6 +30,7 @@ Moksi.Object = {
   isEmpty: function(object) {
     if (Moksi.Object.isUndefined(object)) return true;
     if (object == null) return true;
+
     if (object.length > 0) {
       return false;
     } else {
@@ -41,6 +42,8 @@ Moksi.Object = {
   },
 
   isEqual: function(left, right) {
+    if (left == null && right == null) return true;
+
     if (left && (typeof left == 'function')) {
       return left == right;
     } else if (left && (typeof left.length == 'number') && (typeof left != 'string')) {
@@ -53,17 +56,21 @@ Moksi.Object = {
   },
 
   isEqualEnumerable: function(left, right) {
-    if (left.length != right.length) return false;
+    if (Moksi.Object.isUndefined(left) || Moksi.Object.isUndefined(right)) return false;
+    if (left == null || right == null) return false;
 
+    if (left.length != right.length) return false;
     var i = left.length;
     while(i--) {
       if (!this.isEqual(left[i], right[i])) return false;
     }
-
     return true;
   },
 
   isEqualObject: function(left, right) {
+    if (Moksi.Object.isUndefined(left) || Moksi.Object.isUndefined(right)) return false;
+    if (left == null || right == null) return false;
+
     for (var key in left) {
       if (!this.isEqual(left[key], right[key])) return false;
     }
@@ -135,17 +142,29 @@ Moksi.Expectations.Expectation = Class.create({
     });
   },
 
-  receives: function(method) {
+  receives: function(method, options) {
+    options = options || {}
+
     Moksi.stubs(this.subject, method, function(subject) {
-      Moksi.Invocations.register(subject, method, subject[Moksi.Stubber.stubbedName(method)].arguments);
+      Moksi.Invocations.register(subject, method, subject[method].arguments);
     }.curry(this.subject));
 
+    var messages = {
+      expects: 'expected ‘'+this.subject+'’ to receive',
+      rejects: 'expected ‘'+this.subject+'’ to not receive'
+    }
+
+    if (options.withArguments) {
+      messages.expects += ' ‘'+method+'('+options.withArguments+')’';
+      messages.rejects += ' ‘'+method+'('+options.withArguments+')’';
+    } else {
+      messages.expects += ' ‘'+method+'’';
+      messages.rejects += ' ‘'+method+'’';
+    }
+
     this._assertDelayed(function(subject) {
-      return Moksi.Invocations.isCalled(subject, method);
-    }, {
-      expects: 'expected ‘'+this.subject+'’ to receive ‘'+method+'’',
-      rejects: 'expected ‘'+this.subject+'’ to not receive ‘'+method+'’'
-    });
+      return Moksi.Invocations.isCalled(subject, method, options.withArguments);
+    }, messages);
   }
 });
 

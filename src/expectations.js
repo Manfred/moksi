@@ -60,17 +60,29 @@ Moksi.Expectations.Expectation = Class.create({
     });
   },
   
-  receives: function(method) {
+  receives: function(method, options) {
+    options = options || {}
+    
     Moksi.stubs(this.subject, method, function(subject) {
-      Moksi.Invocations.register(subject, method, subject[Moksi.Stubber.stubbedName(method)].arguments);
+      Moksi.Invocations.register(subject, method, subject[method].arguments);
     }.curry(this.subject));
     
+    var messages = {
+      expects: 'expected ‘'+this.subject+'’ to receive',
+      rejects: 'expected ‘'+this.subject+'’ to not receive'
+    }
+    
+    if (options.withArguments) {
+      messages.expects += ' ‘'+method+'('+options.withArguments+')’';
+      messages.rejects += ' ‘'+method+'('+options.withArguments+')’';
+    } else {
+      messages.expects += ' ‘'+method+'’';
+      messages.rejects += ' ‘'+method+'’';
+    }
+    
     this._assertDelayed(function(subject) {
-      return Moksi.Invocations.isCalled(subject, method);
-    }, {
-      expects: 'expected ‘'+this.subject+'’ to receive ‘'+method+'’',
-      rejects: 'expected ‘'+this.subject+'’ to not receive ‘'+method+'’'
-    });
+      return Moksi.Invocations.isCalled(subject, method, options.withArguments);
+    }, messages);
   }
 });
 

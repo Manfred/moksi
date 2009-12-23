@@ -1,4 +1,28 @@
-Moksi.describe('Moksi.Object', {
+Moksi.describe('Moksi.Object, concerning object definition', {
+  'tests if object is undefined': function() {
+    expects(Moksi.Object.isUndefined((function() {})())).truthy();
+  },
+  
+  'tests if object is not undefined': function() {
+    rejects(Moksi.Object.isUndefined(1)).truthy();
+  }
+});
+
+Moksi.describe('Moksi.Object, concerning object contents', {
+  'tests if object is empty': function() {
+    [{}, [], (new Object), (new Array)].each(function(example) {
+      expects(Moksi.Object.isEmpty(example)).truthy();
+    });
+  },
+  
+  'tests if object is not empty': function() {
+    [{a:1}, ['a'], (new Array(1,2,3)), (new Object({a:1})), 'a'].each(function(example) {
+      rejects(Moksi.Object.isEmpty(example)).truthy();
+    });
+  }
+});
+
+Moksi.describe('Moksi.Object, concerning general object equality', {
   helpers: {
     expectEqual: function(examples) {
       examples.each(function(example) {
@@ -12,32 +36,20 @@ Moksi.describe('Moksi.Object', {
     }
   },
   
-  'tests if object is undefined': function() {
-    expects(Moksi.Object.isUndefined((function() {})())).truthy();
-  },
-  
-  'tests if object is not undefined': function() {
-    rejects(Moksi.Object.isUndefined(1)).truthy();
-  },
-  
-  'tests if object is empty': function() {
-    [{}, [], (new Object), (new Array)].each(function(example) {
-      expects(Moksi.Object.isEmpty(example)).truthy();
-    });
-  },
-  
-  'test if object is not empty': function() {
-    [{a:1}, ['a'], (new Array(1,2,3)), (new Object({a:1})), 'a'].each(function(example) {
-      rejects(Moksi.Object.isEmpty(example)).truthy();
-    });
-  },
-  
   'tests base object equality': function() {
     expectEqual([[1, 1], [2, 2], ['one', 'one'], [2.0, 2.0]]);
   },
   
   'tests base object inequality': function() {
     expectNotEqual([[1, 2], [2, 1], ['one', 'two'], [2.0, 1.0]]);
+  },
+  
+  'tests undefined or empty value equality': function() {
+    var undef = (function() {})();
+    expectEqual([
+      [undef, undef],
+      [null, null]
+    ]);
   },
   
   'tests enumerable object equality': function() {
@@ -52,8 +64,13 @@ Moksi.describe('Moksi.Object', {
     ]);
   },
   
-  'test enumerable object inequality': function() {
+  'tests enumerable object inequality': function() {
+    var undef = (function() {})();
     expectNotEqual([
+      [[], undef],
+      [undef, []],
+      [[], null],
+      [null, []],
       [[1],[2]],
       [[1],[]],
       [[],[1]],
@@ -66,7 +83,7 @@ Moksi.describe('Moksi.Object', {
     ]);
   },
   
-  'test complex object equality': function() {
+  'tests complex object equality': function() {
     var f = function() { document.write('Nuff sed') };
     var g = function() { document.write('Word…') };
     
@@ -85,7 +102,7 @@ Moksi.describe('Moksi.Object', {
     ]);
   },
   
-  'test complex object inequality': function() {
+  'tests complex object inequality': function() {
     var f = function() { document.write('Nuff sed') };
     var g = function() { document.write('Word…') };
 
@@ -103,5 +120,40 @@ Moksi.describe('Moksi.Object', {
       [{a: 1, name: f, other: g}, {a: 1, name: g, other: f}],
       [left, right]
     ]);
+  }
+});
+
+Moksi.describe('Moksi.Object, concerning enumerable equality', {
+  'tests if objects are equal': function() {
+    [
+      [[], []],
+      [[1], [1]],
+      [[{a:1}], [{a:1}]]
+    ].each(function(pair) {
+      expects(Moksi.Object.isEqualEnumerable(pair[0], pair[1])).truthy();
+    });
+  },
+  
+  'tests if objects are inequal': function() {
+    var undef = (function() {})();
+    [
+      [null, null],
+      [undef, undef],
+      [[], undef],
+      [undef, []],
+      [[], null],
+      [null, []],
+      [[1],[2]],
+      [[1],[]],
+      [[],[1]],
+      [[1,2],[1,2,3]],
+      [[1,2,3],[1,2]],
+      [[1,3,2],[1,2,3]],
+      [[[1],[2],[3,4]],[[1],[2],[3]]],
+      [['a'],['a','b']],
+      [[0, 0],[0]]
+    ].each(function(pair) {
+      rejects(Moksi.Object.isEqualEnumerable(pair[0], pair[1])).truthy();
+    });
   }
 });
