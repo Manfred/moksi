@@ -2,6 +2,7 @@ var context = Moksi.describe('Example', {
   setup: function() {
     this.setupCount = this.setupCount || 0;
     this.setupCount += 1;
+    this.person = { name: 'Alice' };
   },
   
   teardown: function() {
@@ -20,6 +21,11 @@ var context = Moksi.describe('Example', {
     expects(0).equals(1);
     expects(0).equals(2);
   },
+  
+  'should run delayed assertions': function() {
+    expects(this.suite.person).receives('name');
+    this.suite.person.name();
+  }
 }, { reporter: Fake.Reporter });
 
 Moksi.describe('Moksi.Context', {
@@ -34,7 +40,7 @@ Moksi.describe('Moksi.Context', {
   },
   
   'reports its number of tests': function() {
-    expects(Fake.Reporter.count).equals(2);
+    expects(Fake.Reporter.count).equals(3);
   },
   
   'reports succeeding tests with proper result and description': function() {
@@ -57,15 +63,28 @@ Moksi.describe('Moksi.Context', {
     expects(failure[1].messages[1]).equals('expected ‘0’ to be equal to ‘2’');
   },
   
+  'reports delayed assertions at the end of the test': function() {
+    var delayed = Fake.Reporter.results[2];
+    
+    expects(delayed[0]).equals('should run delayed assertions');
+    expects(delayed[1].result).equals('ok');
+    expects(delayed[1].expectationCount).equals(1);
+    expects(delayed[1].messages).empty();
+  },
+  
+  'resets the invocations at the end of the test': function() {
+    expects(Moksi.Invocations.invoked).empty();
+  },
+  
   'has access to its helpers': function() {
     expects(globalHelper()).equals(true);
   },
   
   'runs its setup before each test': function() {
-    expects(context.suite.setupCount).equals(2);
+    expects(context.suite.setupCount).equals(3);
   },
   
   'runs its teardown after each test': function() {
-    expects(context.suite.teardownCount).equals(2);
+    expects(context.suite.teardownCount).equals(3);
   }
 });
