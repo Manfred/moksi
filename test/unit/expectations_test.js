@@ -513,5 +513,69 @@ Moksi.describe('Moksi.Expectations.Expectation, concerning receives', Object.ext
     expects(this.suite.resolver.results.length).equals(1);
     expects(this.suite.resolver.results[0].result).equals('not ok');
     expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘hasFriend(Manfred)’');
+  },
+  
+  'reports success for successful expected test with expected arguments and an invocation count': function() {
+    var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
+    expectation.receives('hasFriend', {
+      withArguments: ['Manfred'],
+      times: 2
+    });
+    
+    Person.hasFriend('Manfred');
+    Person.hasFriend('Manfred');
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.results.length).equals(1);
+    expects(this.suite.resolver.results[0].result).equals('ok');
+  },
+  
+  'reports failure for failed expected test with expected arguments and an invocation count': function() {
+    var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
+    expectation.receives('hasFriend', {
+      withArguments: ['Manfred'],
+      times: 2
+    });
+    
+    Person.hasFriend();
+    Person.hasFriend('Krista');
+    Person.hasFriend('Manfred');
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.results.length).equals(1);
+    expects(this.suite.resolver.results[0].result).equals('not ok');
+    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to receive ‘hasFriend(Manfred)’ 2 times');
+  },
+  
+  'reports success for successful rejected test with expected arguments and an invocation count': function() {
+    var expectation = new Moksi.Expectations.Expectation(Person, false, this.suite.resolver);
+    expectation.receives('hasFriend', {
+      withArguments: ['Manfred'],
+      times: 2
+    });
+    
+    Person.hasFriend();
+    Person.hasFriend('Krista');
+    Person.hasFriend('Manfred');
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.results.length).equals(1);
+    expects(this.suite.resolver.results[0].result).equals('ok');
+  },
+  
+  'reports failure for failed rejected test with expected arguments and an invocation count': function() {
+    var expectation = new Moksi.Expectations.Expectation(Person, false, this.suite.resolver);
+    expectation.receives('hasFriend', {
+      withArguments: ['Manfred'],
+      times: 2
+    });
+    
+    Person.hasFriend('Manfred');
+    Person.hasFriend('Manfred');
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.results.length).equals(1);
+    expects(this.suite.resolver.results[0].result).equals('not ok');
+    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘hasFriend(Manfred)’ 2 times');
   }
 }, BaseTestSuite));

@@ -73,16 +73,30 @@ Moksi.Expectations.Expectation = Class.create({
     }
     
     if (options.withArguments) {
-      messages.expects += ' ‘'+method+'('+options.withArguments+')’';
-      messages.rejects += ' ‘'+method+'('+options.withArguments+')’';
+      var part = ' ‘'+method+'('+options.withArguments+')’';
+      messages.expects += part;
+      messages.rejects += part;
     } else {
-      messages.expects += ' ‘'+method+'’';
-      messages.rejects += ' ‘'+method+'’';
+      var part = ' ‘'+method+'’';
+      messages.expects += part;
+      messages.rejects += part;
     }
     
-    this._assertDelayed(function(subject) {
-      return Moksi.Invocations.isCalled(subject, method, options.withArguments);
-    }, messages);
+    if (options.times) {
+      var times = options.times == 1 ? 'time' : 'times'
+      var part = ' '+options.times+' '+times;
+      messages.expects += part;
+      messages.rejects += part;
+      
+      this._assertDelayed(function(subject) {
+        return Moksi.Invocations.callCount(subject, method, options.withArguments) == options.times;
+      }, messages);
+    } else {
+      this._assertDelayed(function(subject) {
+        return Moksi.Invocations.isCalled(subject, method, options.withArguments);
+      }, messages);
+    }
+    
   }
 });
 
