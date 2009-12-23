@@ -6,11 +6,15 @@ Moksi is an all-in-one JavaScript testing framework with a lot of salt, but easy
 
     var Person = Class.create({
       initialize: function(name, mood) {
-        this.name = name;
+        this._name = name;
+      },
+      
+      name: function() {
+        return this._name;
       },
   
       toBlurb: function() {
-        return this.name + ' is a ' + mood + ' person.';
+        return this.name() + ' is a ' + mood + ' person.';
       }
     });
 
@@ -21,6 +25,10 @@ Moksi is an all-in-one JavaScript testing framework with a lot of salt, but easy
   
       'describes itself in a blurb': function() {
         expects(this.person.toBlurb()).equals('Alice is a happy person.');
+      },
+      
+      'includes the name in the blurb': function() {
+        expects(this.person).receives('name', { times: 1 });
       }
     });
 
