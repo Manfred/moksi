@@ -1,4 +1,4 @@
-Fake = {};
+if (typeof Fake == 'undefined') Fake = {};
 Fake.Reporter = {
   plan: function(description, count) {
     Fake.Reporter.description = description;

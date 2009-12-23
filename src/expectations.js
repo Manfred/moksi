@@ -1,18 +1,103 @@
 Moksi.Expectations = {};
 
-Moksi.Expectations.Collection = Class.create({
-  initialize: function() {
-    this.results = [];
+Moksi.Expectations.Expectation = Class.create({
+  initialize: function(subject, assertionResult, resolver) {
+    this.subject         = subject;
+    this.assertionResult = assertionResult;
+    this.resolver        = resolver;
   },
   
-  capture: function(result, message) {
-    this.results.push({result: result, message: message});
+  equals: function(expected) {
+    var subject = this.subject;
+    this.resolver.assert({
+      run: function() {
+        return Moksi.Object.isEqual(subject, expected);
+      },
+      assertionResult: this.assertionResult,
+      messages: {
+        expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
+        rejects: 'expected ‘'+this.subject+'’ to not be equal to ‘'+expected+'’'
+      }
+    });
+  },
+  
+  equalsArray: function(expected) {
+    var subject = this.subject;
+    this.resolver.assert({
+      run: function() {
+        return Moksi.Object.isEqualEnumerable(subject, expected);
+      },
+      assertionResult: this.assertionResult,
+      messages: {
+        expects: 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']',
+        rejects: 'expected ['+this.subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']'
+      }
+    });
+  },
+  
+  truthy: function() {
+    var subject = this.subject;
+    this.resolver.assert({
+      run: function() {
+        return subject;
+      },
+      assertionResult: this.assertionResult,
+      messages: {
+        expects: 'expected ‘'+this.subject+'’ to be truthy',
+        rejects: 'expected ‘'+this.subject+'’ to not be truthy'
+      }
+    });
+  },
+  
+  // TODO: Find a way to show nicer output for expected values.
+  empty: function() {
+    var subject = this.subject;
+    this.resolver.assert({
+      run: function() {
+        return Moksi.Object.isEmpty(subject);
+      },
+      assertionResult: this.assertionResult,
+      messages: {
+        expects: 'expected ‘'+this.subject+'’ to be empty',
+        rejects: 'expected ‘'+this.subject+'’ to not be empty',
+      }
+    });
+  }
+});
+
+Moksi.Expectations.Resolver = Class.create({
+  initialize: function() {
+    this.results = [];
+    this.delayed = [];
   },
   
   flush: function() {
     var results = this.results;
     this.results = [];
     return results;
+  },
+  
+  assert: function(assertion) {
+    if (assertion.run() == assertion.assertionResult)
+    {
+      this.capture('ok');
+    } else {
+      var message = assertion.assertionResult ? assertion.messages.expects : assertion.messages.rejects;
+      this.capture('not ok', message);
+    }
+  },
+  
+  assertDelayed: function(assertion) {
+    this.delayed.push(assertion);
+  },
+  
+  runDelayedAssertions: function() {
+    this.delayed.each(this.assert, this);
+    this.delayed = [];
+  },
+  
+  capture: function(result, message) {
+    this.results.push({result: result, message: message});
   },
   
   report: function() {
@@ -31,73 +116,17 @@ Moksi.Expectations.Collection = Class.create({
   }
 });
 
-Moksi.Expectations.Subject = Class.create({
-  initialize: function(subject, collection, options) {
-    this.subject    = subject;
-    this.collection = collection;
-    this.options    = options;
-  },
-  
-  _assert: function(result, messages) {
-    if (result == this.options.result)
-    {
-      this.collection.capture('ok');
-    } else {
-      var message = this.options.result ? messages.expects : messages.rejects;
-      this.collection.capture('not ok', message);
-    }
-  },
-  
-  equals: function(expected) {
-    this._assert(Moksi.Object.isEqual(this.subject, expected), {
-      expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
-      rejects: 'expected ‘'+this.subject+'’ to not be equal to ‘'+expected+'’'
-    })
-  },
-  
-  equalsArray: function(expected) {
-    var equals = true;
-    
-    if (this.subject.length != expected.length) {
-      equals = false;
-    } else {
-      for (i=0; i < expected.length; i++) {
-        if (this.subject[i] != expected[i]) equals = false; break;
-      }
-    }
-    
-    this._assert(equals, {
-      expects: 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']',
-      rejects: 'expected ['+this.subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']'
-    });
-  },
-  
-  truthy: function() {
-    this._assert(this.subject, {
-      expects: 'expected ‘'+this.subject+'’ to be truthy',
-      rejects: 'expected ‘'+this.subject+'’ to not be truthy'
-    });
-  },
-  
-  // TODO: Find a way to show nicer output for expected values.
-  empty: function() {
-    this._assert(Moksi.Object.isEmpty(this.subject), {
-      expects: 'expected ‘'+this.subject+'’ to be empty',
-      rejects: 'expected ‘'+this.subject+'’ to not be empty',
-    });
-  }
-});
 
 Moksi.Expectations.Methods = function() {
-  var _expectations = new Moksi.Expectations.Collection();
+  var _resolver = new Moksi.Expectations.Resolver();
   
   function expects(subject) {
-    return new Moksi.Expectations.Subject(subject, _expectations, {result: true});
-  }
-
-  function rejects(subject) {
-    return new Moksi.Expectations.Subject(subject, _expectations, {result: false});
+    return new Moksi.Expectations.Expectation(subject, true, _resolver);
   }
   
-  return {_expectations: _expectations, expects: expects, rejects: rejects};
+  function rejects(subject) {
+    return new Moksi.Expectations.Expectation(subject, false, _resolver);
+  }
+  
+  return {_resolver: _resolver, expects: expects, rejects: rejects};
 }();

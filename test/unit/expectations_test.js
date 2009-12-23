@@ -1,104 +1,192 @@
-Moksi.describe('Moksi.Expectations.Collection', {
-  'captures and flushes expectation results': function() {
-    var collection = new Moksi.Expectations.Collection();
+Moksi.describe('Moksi.Expectations.Resolver', {
+  setup: function() {
+    this.resolver = new Moksi.Expectations.Resolver();
     
-    collection.capture('ok');
-    var results = collection.flush();
+    this.successfulExpectation = { run: function() { return true; },
+      assertionResult: true,
+      messages: {
+        expects: 'not expected message',
+        rejects: 'not expected message'
+      }
+    };
+    this.successfulRejection = { run: function() { return false; },
+      assertionResult: false,
+      messages: {
+        expects: 'not expected message',
+        rejects: 'not expected message'
+      }
+    };
+    this.failedExpectation = { run: function() { return false; },
+      assertionResult: true,
+      messages: {
+        expects: 'expected message',
+        rejects: 'not expected message'
+      }
+    };
+    this.failedRejection = { run: function() { return true; },
+      assertionResult: false,
+      messages: {
+        expects: 'not expected message',
+        rejects: 'expected message'
+      }
+    };
+  },
+  
+  'captures and flushes expectation results': function() {
+    this.suite.resolver.capture('ok');
+    var results = this.suite.resolver.flush();
     expects(results.length).equals(1);
     expects(results[0].result).equals('ok');
     
-    collection.capture('not ok', 'things I expect should be the case');
-    var results = collection.flush();
+    this.suite.resolver.capture('not ok', 'things I expect should be the case');
+    var results = this.suite.resolver.flush();
     expects(results.length).equals(1);
     expects(results[0].result).equals('not ok');
     expects(results[0].message).equals('things I expect should be the case');
     
-    expects(collection.results).empty();
+    expects(this.suite.resolver.results).empty();
   },
   
   'reports success when there are no expectations': function() {
-    var collection = new Moksi.Expectations.Collection();
-    var report = collection.report();
+    var report = this.suite.resolver.report();
     expects(report.result).equals('ok');
   },
   
-  'reports success when all expectations fail': function() {
-    var collection = new Moksi.Expectations.Collection();
-    collection.capture('not ok', 'something is not ok');
-    collection.capture('not ok', 'something else is also bad');
+  'reports failure when all expectations fail': function() {
+    this.suite.resolver.capture('not ok', 'something is not ok');
+    this.suite.resolver.capture('not ok', 'something else is also bad');
     
-    var report = collection.report();
+    var report = this.suite.resolver.report();
     expects(report.result).equals('not ok');
   },
   
   'reports failure when one expectation fails': function() {
-    var collection = new Moksi.Expectations.Collection();
-    collection.capture('ok');
-    collection.capture('not ok', 'something is not ok');
+    this.suite.resolver.capture('ok');
+    this.suite.resolver.capture('not ok', 'something is not ok');
     
-    var report = collection.report();
+    var report = this.suite.resolver.report();
     expects(report.result).equals('not ok');
   },
   
   'reports expectation messages': function() {
-    var collection = new Moksi.Expectations.Collection();
-    collection.capture('ok');
-    collection.capture('not ok', 'something is not ok');
-    collection.capture('not ok', 'something else is also bad');
+    this.suite.resolver.capture('ok');
+    this.suite.resolver.capture('not ok', 'something is not ok');
+    this.suite.resolver.capture('not ok', 'something else is also bad');
     
-    var report = collection.report();
+    var report = this.suite.resolver.report();
     expects(report.messages).equalsArray(['something is not ok', 'something else is also bad']);
   },
   
   'reports the correct expectation count': function() {
-    var collection = new Moksi.Expectations.Collection();
+    expects(this.suite.resolver.report().expectationCount).equals(0);
     
-    expects(collection.report().expectationCount).equals(0);
+    this.suite.resolver.capture('ok');
+    expects(this.suite.resolver.report().expectationCount).equals(1);
     
-    collection.capture('ok');
-    expects(collection.report().expectationCount).equals(1);
-    
-    collection.capture('ok');
-    collection.capture('ok');
-    expects(collection.report().expectationCount).equals(2);
+    this.suite.resolver.capture('ok');
+    this.suite.resolver.capture('ok');
+    expects(this.suite.resolver.report().expectationCount).equals(2);
+  },
+  
+  'runs a successful assertion and reports success (expected)': function() {
+    this.suite.resolver.assert(this.suite.successfulExpectation);
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('ok');
+  },
+  
+  'runs a failed assertion and reports failure (expected)': function() {
+    this.suite.resolver.assert(this.suite.failedExpectation);
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('not ok');
+    expects(results[0].message).equals('expected message');
+  },
+  
+  'runs a successful assertion and reports success (rejected)': function() {
+    this.suite.resolver.assert(this.suite.successfulRejection);
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('ok');
+  },
+  
+  'runs a failed assertion and reports failure (rejected)': function() {
+    this.suite.resolver.assert(this.suite.failedRejection);
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('not ok');
+    expects(results[0].message).equals('expected message');
+  },
+  
+  'records a delayed assertion': function() {
+    expects(this.suite.resolver.delayed.length).equals(0);
+    this.suite.resolver.assertDelayed({})
+    expects(this.suite.resolver.delayed.length).equals(1);
+  },
+  
+  'runs a delayed successful assertion and reports success (expected)': function() {
+    this.suite.resolver.assertDelayed(this.suite.successfulExpectation);
+    this.suite.resolver.runDelayedAssertions();
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('ok');
+  },
+  
+  'runs a delayed failed assertion and reports failure (expected)': function() {
+    this.suite.resolver.assertDelayed(this.suite.failedExpectation);
+    this.suite.resolver.runDelayedAssertions();
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('not ok');
+    expects(results[0].message).equals('expected message');
+  },
+  
+  'runs a delayed successful assertion and reports success (rejected)': function() {
+    this.suite.resolver.assertDelayed(this.suite.successfulRejection);
+    this.suite.resolver.runDelayedAssertions();
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('ok');
+  },
+  
+  'runs a delayed failed assertion and reports failure (rejected)': function() {
+    this.suite.resolver.assertDelayed(this.suite.failedRejection);
+    this.suite.resolver.runDelayedAssertions();
+    var results = this.suite.resolver.flush();
+    expects(results.length).equals(1);
+    expects(results[0].result).equals('not ok');
+    expects(results[0].message).equals('expected message');
   }
 });
 
-var Fake = {};
-Fake.Collection = {
-  captured: [],
-  capture: function(result, message) {
-    Fake.Collection.captured.push({result: result, message: message});
-  }
-}
-
 var BaseTestSuite = {
   setup: function() {
-    Fake.Collection.captured = [];
+    this.resolver = new Moksi.Expectations.Resolver();
   },
   
   helpers: {
     expectAssertionsRun: function(method, options) {
       options.examples.each(function(example) {
-        var subject = new Moksi.Expectations.Subject(example[0], Fake.Collection, {result: options.asserting});
-        subject[method](example[1]);
+        var expectation = new Moksi.Expectations.Expectation(example[0], options.asserting, this.suite.resolver);
+        expectation[method](example[1]);
       }, this);
       
-      expects(Fake.Collection.captured.length).equals(options.examples.length);
-      expects(Fake.Collection.captured.all(function(result) {
+      expects(this.suite.resolver.results.length).equals(options.examples.length);
+      expects(this.suite.resolver.results.all(function(result) {
         return result.result == options.withResult;
       })).truthy();
       
       if (options.withMessages) {
-        var i; for (i=0; i < options.withMessages.length; i++) {
-          expects(Fake.Collection.captured[i].message).equals(options.withMessages[i]);
+        var i = options.withMessages.length;
+        while(i--) {
+          expects(this.suite.resolver.results[i].message).equals(options.withMessages[i]);
         }
       }
     }
   }
 }
 
-Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend({
+Moksi.describe('Moksi.Expectations.Expectation, concerning equals', Object.extend({
   'reports success for successful expected tests': function() {
     // For example expects(1).equals(1) should succeed
     expectAssertionsRun('equals', {
@@ -148,7 +236,7 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equals', Object.extend({
   }
 }, BaseTestSuite));
 
-Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.extend({
+Moksi.describe('Moksi.Expectations.Expectation, concerning equalsArray', Object.extend({
   'reports success for successful expected tests': function() {
     // For example expects([1]).equalsArray([1]) should succeed
     expectAssertionsRun('equalsArray', {
@@ -198,7 +286,7 @@ Moksi.describe('Moksi.Expectations.Subject, concerning equalsArray', Object.exte
   }
 }, BaseTestSuite));
 
-Moksi.describe('Moksi.Expectations.Subject, concerning truthy', Object.extend({
+Moksi.describe('Moksi.Expectations.Expectation, concerning truthy', Object.extend({
   'reports success for successful expected tests': function() {
     // For example expects(true).truthy() should succeed
     expectAssertionsRun('truthy', {
@@ -245,7 +333,7 @@ Moksi.describe('Moksi.Expectations.Subject, concerning truthy', Object.extend({
   }
 }, BaseTestSuite));
 
-Moksi.describe('Moksi.Expectations.Subject, concerning empty', Object.extend({
+Moksi.describe('Moksi.Expectations.Expectation, concerning empty', Object.extend({
   'reports success for successful expected tests': function() {
     // For example expects([]).empty() should succeed
     expectAssertionsRun('empty', {

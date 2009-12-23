@@ -1,0 +1,4 @@
+# Build distribution version when the source changes
+process do |files|
+  execute "rake build" if files.any? { |file| file =~ %r{^src/.*.js} }
+end

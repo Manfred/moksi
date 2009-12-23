@@ -11,7 +11,6 @@ Moksi.Invocations = {
     var i = this.invoked.length;
     if (!i) return false;
     while(i--) {
-      console.log(this.invoked[i]);
       if (Moksi.Object.isEqualEnumerable(arguments, this.invoked[i])) return true;
     }
     return false;
