@@ -1,5 +1,11 @@
 Moksi.Object = {
+  isUndefined: function(object) {
+    return typeof object === "undefined";
+  },
+  
   isEmpty: function(object) {
+    if (Moksi.Object.isUndefined(object)) return true;
+    if (object == null) return true;
     if (object.length > 0) {
       return false;
     } else {

@@ -30,6 +30,9 @@ Moksi.Context = Class.create({
       if (suite.teardown) suite.teardown();
       if (Moksi.unstubAll) Moksi.unstubAll();
       
+      Moksi.Expectations.Methods._resolver.runDelayedAssertions();
+      Moksi.Invocations.reset();
+      
       var report = Moksi.Expectations.Methods._resolver.report();
       this.reporter.report(test.key, report);
     }, this);

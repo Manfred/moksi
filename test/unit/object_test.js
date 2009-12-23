@@ -12,6 +12,14 @@ Moksi.describe('Moksi.Object', {
     }
   },
   
+  'tests if object is undefined': function() {
+    expects(Moksi.Object.isUndefined((function() {})())).truthy();
+  },
+  
+  'tests if object is not undefined': function() {
+    rejects(Moksi.Object.isUndefined(1)).truthy();
+  },
+  
   'tests if object is empty': function() {
     [{}, [], (new Object), (new Array)].each(function(example) {
       expects(Moksi.Object.isEmpty(example)).truthy();

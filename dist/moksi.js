@@ -23,7 +23,13 @@ var Moksi = {
 };
 
 Moksi.Object = {
+  isUndefined: function(object) {
+    return typeof object === "undefined";
+  },
+
   isEmpty: function(object) {
+    if (Moksi.Object.isUndefined(object)) return true;
+    if (object == null) return true;
     if (object.length > 0) {
       return false;
     } else {
@@ -85,6 +91,14 @@ Moksi.Expectations.Expectation = Class.create({
     });
   },
 
+  _assertDelayed: function(assertion, messages) {
+    this.resolver.assertDelayed({
+      run: assertion.curry(this.subject),
+      assertionResult: this.assertionResult,
+      messages: messages
+    });
+  },
+
   equals: function(expected) {
     this._assert(function(subject) {
       return Moksi.Object.isEqual(subject, expected);
@@ -115,9 +129,22 @@ Moksi.Expectations.Expectation = Class.create({
   empty: function() {
     this._assert(function(subject) {
       return Moksi.Object.isEmpty(subject);
-    },   {
+    }, {
       expects: 'expected ‘'+this.subject+'’ to be empty',
       rejects: 'expected ‘'+this.subject+'’ to not be empty',
+    });
+  },
+
+  receives: function(method) {
+    Moksi.stubs(this.subject, method, function(subject) {
+      Moksi.Invocations.register(subject, method, subject[Moksi.Stubber.stubbedName(method)].arguments);
+    }.curry(this.subject));
+
+    this._assertDelayed(function(subject) {
+      return Moksi.Invocations.isCalled(subject, method);
+    }, {
+      expects: 'expected ‘'+this.subject+'’ to receive ‘'+method+'’',
+      rejects: 'expected ‘'+this.subject+'’ to not receive ‘'+method+'’'
     });
   }
 });
@@ -219,6 +246,9 @@ Moksi.Context = Class.create({
 
       if (suite.teardown) suite.teardown();
       if (Moksi.unstubAll) Moksi.unstubAll();
+
+      Moksi.Expectations.Methods._resolver.runDelayedAssertions();
+      Moksi.Invocations.reset();
 
       var report = Moksi.Expectations.Methods._resolver.report();
       this.reporter.report(test.key, report);

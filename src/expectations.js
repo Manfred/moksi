@@ -15,6 +15,14 @@ Moksi.Expectations.Expectation = Class.create({
     });
   },
   
+  _assertDelayed: function(assertion, messages) {
+    this.resolver.assertDelayed({
+      run: assertion.curry(this.subject),
+      assertionResult: this.assertionResult,
+      messages: messages
+    });
+  },
+  
   equals: function(expected) {
     this._assert(function(subject) {
       return Moksi.Object.isEqual(subject, expected);
@@ -46,9 +54,22 @@ Moksi.Expectations.Expectation = Class.create({
   empty: function() {
     this._assert(function(subject) {
       return Moksi.Object.isEmpty(subject);
-    },   {
+    }, {
       expects: 'expected ‘'+this.subject+'’ to be empty',
       rejects: 'expected ‘'+this.subject+'’ to not be empty',
+    });
+  },
+  
+  receives: function(method) {
+    Moksi.stubs(this.subject, method, function(subject) {
+      Moksi.Invocations.register(subject, method, subject[Moksi.Stubber.stubbedName(method)].arguments);
+    }.curry(this.subject));
+    
+    this._assertDelayed(function(subject) {
+      return Moksi.Invocations.isCalled(subject, method);
+    }, {
+      expects: 'expected ‘'+this.subject+'’ to receive ‘'+method+'’',
+      rejects: 'expected ‘'+this.subject+'’ to not receive ‘'+method+'’'
     });
   }
 });

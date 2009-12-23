@@ -379,3 +379,80 @@ Moksi.describe('Moksi.Expectations.Expectation, concerning empty', Object.extend
     });
   }
 }, BaseTestSuite));
+
+var Person = {
+  name: function() {
+    return 'Alice';
+  }
+}
+
+Moksi.describe('Moksi.Expectations.Expectation, concerning receives', Object.extend({
+  'reports success for successful expected tests': function() {
+    // For example expects(Person).receives('name') should succeed
+    var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
+    expectation.receives('name');
+    Person.name();
+    
+    expects(this.suite.resolver.results).empty();
+    expects(this.suite.resolver.delayed.length).equals(1);
+    
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.delayed).empty();
+    expects(this.suite.resolver.results.length).equals(1);
+    
+    expects(this.suite.resolver.results[0].result).equals('ok');
+  },
+
+  'reports failure for failed expected tests': function() {
+    // For example expects(Person).receives('name') should fail
+    var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
+    expectation.receives('name');
+    
+    expects(this.suite.resolver.results).empty();
+    expects(this.suite.resolver.delayed.length).equals(1);
+    
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.delayed).empty();
+    expects(this.suite.resolver.results.length).equals(1);
+    
+    expects(this.suite.resolver.results[0].result).equals('not ok');
+    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to receive ‘name’');
+  },
+  
+  'reports success for successful rejected tests': function() {
+    // For example rejects(Person).receives('name') should succeed
+    var expectation = new Moksi.Expectations.Expectation(Person, false, this.suite.resolver);
+    expectation.receives('name');
+    
+    expects(this.suite.resolver.results).empty();
+    expects(this.suite.resolver.delayed.length).equals(1);
+    
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.delayed).empty();
+    expects(this.suite.resolver.results.length).equals(1);
+    
+    expects(this.suite.resolver.results[0].result).equals('ok');
+  },
+  
+  'reports failure for failed rejected tests': function() {
+    // For example rejects(Person).receives('name') should fail
+    var expectation = new Moksi.Expectations.Expectation(Person, false, this.suite.resolver);
+    expectation.receives('name');
+    Person.name();
+    
+    expects(this.suite.resolver.results).empty();
+    expects(this.suite.resolver.delayed.length).equals(1);
+    
+    this.suite.resolver.runDelayedAssertions();
+    
+    expects(this.suite.resolver.delayed).empty();
+    expects(this.suite.resolver.results.length).equals(1);
+    
+    expects(this.suite.resolver.results[0].result).equals('not ok');
+    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘name’');
+
+  }
+}, BaseTestSuite));
