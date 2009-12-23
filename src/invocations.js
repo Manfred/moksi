@@ -29,7 +29,7 @@ Moksi.Invocations = {
     return false;
   },
   
-  callCount: function() {
+  invocationCount: function() {
     var i = this.invoked.length, count = 0;
     if (!i) return false;
     while(i--) {

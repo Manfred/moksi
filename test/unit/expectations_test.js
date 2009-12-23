@@ -2,33 +2,17 @@ Moksi.describe('Moksi.Expectations.Resolver', {
   setup: function() {
     this.resolver = new Moksi.Expectations.Resolver();
     
-    this.successfulExpectation = { run: function() { return true; },
-      assertionResult: true,
-      messages: {
-        expects: 'not expected message',
-        rejects: 'not expected message'
-      }
+    this.successfulExpectation = function() {
+      return { result: true, expectedResult: true, message: null };
     };
-    this.successfulRejection = { run: function() { return false; },
-      assertionResult: false,
-      messages: {
-        expects: 'not expected message',
-        rejects: 'not expected message'
-      }
+    this.successfulRejection = function() {
+      return { result: false, expectedResult: false, message: null };
     };
-    this.failedExpectation = { run: function() { return false; },
-      assertionResult: true,
-      messages: {
-        expects: 'expected message',
-        rejects: 'not expected message'
-      }
+    this.failedExpectation = function() {
+      return { result: false, expectedResult: true, message: 'expected message' };
     };
-    this.failedRejection = { run: function() { return true; },
-      assertionResult: false,
-      messages: {
-        expects: 'not expected message',
-        rejects: 'expected message'
-      }
+    this.failedRejection = function() {
+      return { result: true, expectedResult: false, message: 'expected message' };
     };
   },
   
@@ -544,7 +528,7 @@ Moksi.describe('Moksi.Expectations.Expectation, concerning receives', Object.ext
     
     expects(this.suite.resolver.results.length).equals(1);
     expects(this.suite.resolver.results[0].result).equals('not ok');
-    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to receive ‘hasFriend(Manfred)’ 2 times');
+    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to receive ‘hasFriend(Manfred)’ 2 times, but was 1 time');
   },
   
   'reports success for successful rejected test with expected arguments and an invocation count': function() {
@@ -576,6 +560,6 @@ Moksi.describe('Moksi.Expectations.Expectation, concerning receives', Object.ext
     
     expects(this.suite.resolver.results.length).equals(1);
     expects(this.suite.resolver.results[0].result).equals('not ok');
-    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘hasFriend(Manfred)’ 2 times');
+    expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘hasFriend(Manfred)’ 2 times, but was 2 times');
   }
 }, BaseTestSuite));

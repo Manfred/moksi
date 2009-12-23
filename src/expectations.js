@@ -1,62 +1,82 @@
 Moksi.Expectations = {};
 
 Moksi.Expectations.Expectation = Class.create({
-  initialize: function(subject, assertionResult, resolver) {
-    this.subject         = subject;
-    this.assertionResult = assertionResult;
-    this.resolver        = resolver;
+  initialize: function(subject, expectedResult, resolver) {
+    this.subject        = subject;
+    this.expectedResult = expectedResult;
+    this.resolver       = resolver;
   },
   
   _assert: function(assertion, messages) {
-    this.resolver.assert({
-      run: assertion.curry(this.subject),
-      assertionResult: this.assertionResult,
-      messages: messages
-    });
+    this.resolver.assert(assertion.curry(this.subject, this.expectedResult));
   },
   
   _assertDelayed: function(assertion, messages) {
-    this.resolver.assertDelayed({
-      run: assertion.curry(this.subject),
-      assertionResult: this.assertionResult,
-      messages: messages
-    });
+    this.resolver.assertDelayed(assertion.curry(this.subject, this.expectedResult));
   },
   
   equals: function(expected) {
-    this._assert(function(subject) {
-      return Moksi.Object.isEqual(subject, expected);
-    }, {
-      expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
-      rejects: 'expected ‘'+this.subject+'’ to not be equal to ‘'+expected+'’'
+    this._assert(function(subject, expectedResult) {
+      var message, result = Moksi.Object.isEqual(subject, expected);
+      
+      if (result != expectedResult) {
+        if (expectedResult) {
+          message = 'expected ‘'+subject+'’ to be equal to ‘'+expected+'’';
+        } else {
+          message = 'expected ‘'+subject+'’ to not be equal to ‘'+expected+'’';
+        }
+      }
+      
+      return { result: result, message: message, expectedResult: expectedResult };
     });
   },
   
   equalsArray: function(expected) {
-    this._assert(function(subject) {
-      return Moksi.Object.isEqualEnumerable(subject, expected);
-    }, {
-      expects: 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']',
-      rejects: 'expected ['+this.subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']'
+    this._assert(function(subject, expectedResult) {
+      var message, result = Moksi.Object.isEqualEnumerable(subject, expected);
+      
+      if (result != expectedResult) {
+        if (expectedResult) {
+          message = 'expected ['+subject.join(', ')+'] to be equal to ['+expected.join(', ')+']';
+        } else {
+          message = 'expected ['+subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']';
+        }
+      }
+      
+      return { result: result, message: message, expectedResult: expectedResult };
     });
   },
   
   truthy: function() {
-    this._assert(function(subject) {
-      return subject;
-    }, {
-      expects: 'expected ‘'+this.subject+'’ to be truthy',
-      rejects: 'expected ‘'+this.subject+'’ to not be truthy'
+    this._assert(function(subject, expectedResult) {
+      var message, result = subject;
+      
+      if (result != expectedResult) {
+        if (expectedResult) {
+          message = 'expected ‘'+subject+'’ to be truthy';
+        } else {
+          message = 'expected ‘'+subject+'’ to not be truthy';
+        }
+      }
+      
+      return { result: result, message: message, expectedResult: expectedResult };
     });
   },
   
   // TODO: Find a way to show nicer output for expected values.
   empty: function() {
-    this._assert(function(subject) {
-      return Moksi.Object.isEmpty(subject);
-    }, {
-      expects: 'expected ‘'+this.subject+'’ to be empty',
-      rejects: 'expected ‘'+this.subject+'’ to not be empty',
+    this._assert(function(subject, expectedResult) {
+      var message, result = Moksi.Object.isEmpty(subject);
+      
+      if (result != expectedResult) {
+        if (expectedResult) {
+          message = 'expected ‘'+subject+'’ to be empty';
+        } else {
+          message = 'expected ‘'+subject+'’ to not be empty';
+        }
+      }
+      
+      return { result: result, message: message, expectedResult: expectedResult };
     });
   },
   
@@ -67,36 +87,43 @@ Moksi.Expectations.Expectation = Class.create({
       Moksi.Invocations.register(subject, method, subject[method].arguments);
     }.curry(this.subject));
     
-    var messages = {
-      expects: 'expected ‘'+this.subject+'’ to receive',
-      rejects: 'expected ‘'+this.subject+'’ to not receive'
-    }
-    
-    if (options.withArguments) {
-      var part = ' ‘'+method+'('+options.withArguments+')’';
-      messages.expects += part;
-      messages.rejects += part;
-    } else {
-      var part = ' ‘'+method+'’';
-      messages.expects += part;
-      messages.rejects += part;
-    }
-    
-    if (options.times) {
-      var times = options.times == 1 ? 'time' : 'times'
-      var part = ' '+options.times+' '+times;
-      messages.expects += part;
-      messages.rejects += part;
+    this._assertDelayed(function(subject, expectedResult) {
+      var _times = function(count) {
+        return '' + count + (count == 1 ? ' time' : ' times');
+      };
       
-      this._assertDelayed(function(subject) {
-        return Moksi.Invocations.callCount(subject, method, options.withArguments) == options.times;
-      }, messages);
-    } else {
-      this._assertDelayed(function(subject) {
-        return Moksi.Invocations.isCalled(subject, method, options.withArguments);
-      }, messages);
-    }
-    
+      var result, invocationCount, messageParts = [];
+      
+      invocationCount = Moksi.Invocations.invocationCount(subject, method, options.withArguments)
+      
+      if (options.times) {
+        result = invocationCount == options.times;
+      } else {
+        result = invocationCount > 0;
+      }
+      
+      if (result != expectedResult) {
+        messageParts.push('expected ‘'+subject+'’');
+        
+        if (expectedResult) {
+          messageParts.push('to receive');
+        } else {
+          messageParts.push('to not receive');
+        }
+        
+        if (options.withArguments) {
+          messageParts.push('‘'+method+'('+options.withArguments+')’');
+        } else {
+          messageParts.push('‘'+method+'’');
+        }
+        
+        if (options.times) {
+          messageParts.push(_times(options.times)+', but was '+_times(invocationCount));
+        }
+      }
+      
+      return { result: result, message: messageParts.join(' '), expectedResult: expectedResult };
+    });
   }
 });
 
@@ -113,12 +140,11 @@ Moksi.Expectations.Resolver = Class.create({
   },
   
   assert: function(assertion) {
-    if (assertion.run() == assertion.assertionResult)
-    {
+    var assertion = assertion();
+    if (assertion.result == assertion.expectedResult) {
       this.capture('ok');
     } else {
-      var message = assertion.assertionResult ? assertion.messages.expects : assertion.messages.rejects;
-      this.capture('not ok', message);
+      this.capture('not ok', assertion.message);
     }
   },
   
