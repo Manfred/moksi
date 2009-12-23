@@ -7,60 +7,48 @@ Moksi.Expectations.Expectation = Class.create({
     this.resolver        = resolver;
   },
   
-  equals: function(expected) {
-    var subject = this.subject;
+  _assert: function(assertion, messages) {
     this.resolver.assert({
-      run: function() {
-        return Moksi.Object.isEqual(subject, expected);
-      },
+      run: assertion.curry(this.subject),
       assertionResult: this.assertionResult,
-      messages: {
-        expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
-        rejects: 'expected ‘'+this.subject+'’ to not be equal to ‘'+expected+'’'
-      }
+      messages: messages
+    });
+  },
+  
+  equals: function(expected) {
+    this._assert(function(subject) {
+      return Moksi.Object.isEqual(subject, expected);
+    }, {
+      expects: 'expected ‘'+this.subject+'’ to be equal to ‘'+expected+'’',
+      rejects: 'expected ‘'+this.subject+'’ to not be equal to ‘'+expected+'’'
     });
   },
   
   equalsArray: function(expected) {
-    var subject = this.subject;
-    this.resolver.assert({
-      run: function() {
-        return Moksi.Object.isEqualEnumerable(subject, expected);
-      },
-      assertionResult: this.assertionResult,
-      messages: {
-        expects: 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']',
-        rejects: 'expected ['+this.subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']'
-      }
+    this._assert(function(subject) {
+      return Moksi.Object.isEqualEnumerable(subject, expected);
+    }, {
+      expects: 'expected ['+this.subject.join(', ')+'] to be equal to ['+expected.join(', ')+']',
+      rejects: 'expected ['+this.subject.join(', ')+'] to not be equal to ['+expected.join(', ')+']'
     });
   },
   
   truthy: function() {
-    var subject = this.subject;
-    this.resolver.assert({
-      run: function() {
-        return subject;
-      },
-      assertionResult: this.assertionResult,
-      messages: {
-        expects: 'expected ‘'+this.subject+'’ to be truthy',
-        rejects: 'expected ‘'+this.subject+'’ to not be truthy'
-      }
+    this._assert(function(subject) {
+      return subject;
+    }, {
+      expects: 'expected ‘'+this.subject+'’ to be truthy',
+      rejects: 'expected ‘'+this.subject+'’ to not be truthy'
     });
   },
   
   // TODO: Find a way to show nicer output for expected values.
   empty: function() {
-    var subject = this.subject;
-    this.resolver.assert({
-      run: function() {
-        return Moksi.Object.isEmpty(subject);
-      },
-      assertionResult: this.assertionResult,
-      messages: {
-        expects: 'expected ‘'+this.subject+'’ to be empty',
-        rejects: 'expected ‘'+this.subject+'’ to not be empty',
-      }
+    this._assert(function(subject) {
+      return Moksi.Object.isEmpty(subject);
+    },   {
+      expects: 'expected ‘'+this.subject+'’ to be empty',
+      rejects: 'expected ‘'+this.subject+'’ to not be empty',
     });
   }
 });
