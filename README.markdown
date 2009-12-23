@@ -29,6 +29,7 @@ Moksi is an all-in-one JavaScript testing framework with a lot of salt, but easy
       
       'includes the name in the blurb': function() {
         expects(this.person).receives('name', { times: 1 });
+        this.toBlurb();
       }
     });
 
