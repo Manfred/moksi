@@ -5,7 +5,6 @@ var Ajax = {
 var Updater = Class.create({
   initialize: function(bookId) {
     this.bookId = bookId;
-    setSample('<div id="title"></div>');
   },
   
   run: function() {
@@ -17,6 +16,7 @@ var Updater = Class.create({
 
 Moksi.describe('Updater', {
   setup: function() {
+    setSample('<div id="title"></div>');
     this.suite.updater = new Updater(12);
   },
   
