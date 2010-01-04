@@ -1,13 +1,14 @@
 html
 {
-  font: 12px/14px Menlo, Monaco, Bitstream Serif, Serif;
+  font: 12px/12px Menlo, Monaco, Bitstream Serif, Serif;
 }
 h2
 {
+  font: 12px/12px Menlo, Monaco, Bitstream Serif, Serif;
+  font-weight: bold;
   margin: 0px;
-  padding: 6px;
-  background-color: #dfa;
-  color: #444;
+  padding: 6px 0;
+  color: #222;
 }
 h2 .test-count
 {
@@ -26,7 +27,7 @@ td
 {
   vertical-align: top;
   padding: 2px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #eee;
 }
 td.result
 {
@@ -39,15 +40,23 @@ tr.ok td.result
 {
   background-color: #e0ffd0;
 }
+td.description
+{
+  color: #999;
+}
 tr.not.ok td.result
 {
   background-color: #ff9070;
 }
-td.message
+tr.not.ok td.description
 {
-  color:  #000;
+  color: #000;
+}
+td.messages
+{
+  color: #000;
   font-size: 80%;
-  font-family: 
+  width: 5px;
 }
 span.message-part
 {
