@@ -563,6 +563,11 @@ Moksi.describe('Moksi.Expectations.Expectation, concerning receives', Object.ext
     expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘hasFriend(Manfred)’ 2 times, but was 2 times');
   },
   
+  'uses withArgument: arg as a shortcut for withArguments: [arg]': function() {
+    expects(Person).receives('hasFriend', { withArgument: 'Manfred' });
+    Person.hasFriend('Manfred');
+  },
+  
   'returns no value from the stubbed function': function() {
     var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
     expectation.receives('name');

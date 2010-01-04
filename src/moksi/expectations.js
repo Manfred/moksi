@@ -95,6 +95,11 @@ Moksi.Expectations.Expectation = Class.create({
       
       var result, invocationCount, messageParts = [];
       
+      if (options.withArgument) {
+        options.withArguments = [options.withArgument];
+        delete options['withArgument'];
+      }
+      
       invocationCount = Moksi.Invocations.invocationCount(subject, method, options.withArguments)
       
       if (options.times) {

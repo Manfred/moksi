@@ -22,7 +22,7 @@ Moksi.describe('Updater', {
   
   'fetches book information from the correct URL': function() {
     expects(Ajax).receives('get', {
-      withArguments: ['http://example.com/books/12.json'],
+      withArgument: 'http://example.com/books/12.json',
       returns: { title: 'The Haunter of the Dark' }
     });
     this.suite.updater.run();
