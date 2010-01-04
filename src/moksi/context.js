@@ -17,19 +17,32 @@ Moksi.Context = Class.create({
   run: function() {
     this.cases.each(function(test) {
       var suite   = this.suite;
-      var helpers = this.suite.helpers;
       
-      if (suite.setup) suite.setup();
+      var helpers = {};
+      if (Moksi.Helpers) {
+        for (module in Moksi.Helpers) { if (Moksi.Helpers.hasOwnProperty(module)) {
+          Object.extend(helpers, Moksi.Helpers[module]);
+        }}
+      }
+      Object.extend(helpers, this.suite.helpers);
       
-      Object.extend(test.value, (function() {
+      var context = function() {
         Object.extend(this, {suite: suite})
         Object.extend(this, helpers);
         Object.extend(this, Moksi.Expectations.Methods);
-      })())();
+      };
       
-      if (suite.teardown) suite.teardown();
+      if (suite.setup) {
+        Object.extend(suite.setup, context())();
+      }
+      
+      Object.extend(test.value, context())();
+      
+      if (suite.teardown) {
+        Object.extend(suite.teardown, context())();
+      }
+      
       if (Moksi.unstubAll) Moksi.unstubAll();
-      
       Moksi.Expectations.Methods._resolver.runDelayedAssertions();
       Moksi.Invocations.reset();
       

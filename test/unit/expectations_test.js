@@ -1,17 +1,17 @@
 Moksi.describe('Moksi.Expectations.Resolver', {
   setup: function() {
-    this.resolver = new Moksi.Expectations.Resolver();
+    this.suite.resolver = new Moksi.Expectations.Resolver();
     
-    this.successfulExpectation = function() {
+    this.suite.successfulExpectation = function() {
       return { result: true, expectedResult: true, message: null };
     };
-    this.successfulRejection = function() {
+    this.suite.successfulRejection = function() {
       return { result: false, expectedResult: false, message: null };
     };
-    this.failedExpectation = function() {
+    this.suite.failedExpectation = function() {
       return { result: false, expectedResult: true, message: 'expected message' };
     };
-    this.failedRejection = function() {
+    this.suite.failedRejection = function() {
       return { result: true, expectedResult: false, message: 'expected message' };
     };
   },
@@ -145,7 +145,7 @@ Moksi.describe('Moksi.Expectations.Resolver', {
 
 var BaseTestSuite = {
   setup: function() {
-    this.resolver = new Moksi.Expectations.Resolver();
+    this.suite.resolver = new Moksi.Expectations.Resolver();
   },
   
   helpers: {

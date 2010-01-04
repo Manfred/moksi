@@ -17,4 +17,12 @@ task :build do
     :source_files => ['moksi.js']
   )
   secretary.concatenation.save_to(File.expand_path('../dist/moksi.js', __FILE__))
+  
+  source_dir = File.expand_path('../src/moksi', __FILE__)
+  secretary = Sprockets::Secretary.new(
+    :root         =>  source_dir,
+    :load_path    => [source_dir],
+    :source_files => ['sample.js']
+  )
+  secretary.concatenation.save_to(File.expand_path('../dist/moksi/sample.js', __FILE__))
 end

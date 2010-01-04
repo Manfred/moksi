@@ -33,4 +33,3 @@ var Moksi = {
 //= require "moksi/context"
 
 //= require "moksi/reporter"
-

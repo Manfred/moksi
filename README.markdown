@@ -20,7 +20,7 @@ Moksi is an all-in-one JavaScript testing framework with a lot of salt, but easy
 
     Moksi.describe('Person', {
       setup: function() {
-        this.person = new Person('Alice', 'happy');
+        this.suite.person = new Person('Alice', 'happy');
       },
   
       'describes itself in a blurb': function() {

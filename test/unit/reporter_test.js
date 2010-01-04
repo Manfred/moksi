@@ -1,9 +1,9 @@
 Moksi.describe('Moksi.Reporter', {
   setup: function() {
-    this.output = $('moksi-reporter-output');
-    if (!this.output) {
+    this.suite.output = $('moksi-reporter-output');
+    if (!this.suite.output) {
       document.body.insert({bottom: '<div id="moksi-reporter-output" style="display:none;"></div>'});
-      this.output = $('moksi-reporter-output');
+      this.suite.output = $('moksi-reporter-output');
     }
   },
   

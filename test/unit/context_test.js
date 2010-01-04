@@ -1,13 +1,13 @@
+var Counter = {setups: 0, teardowns: 0};
+
 var context = Moksi.describe('Example', {
   setup: function() {
-    this.setupCount = this.setupCount || 0;
-    this.setupCount += 1;
-    this.person = { name: 'Alice' };
+    Counter.setups += 1;
+    this.suite.person = { name: 'Alice' };
   },
   
   teardown: function() {
-    this.teardownCount = this.teardownCount || 0;
-    this.teardownCount += 1;
+    Counter.teardowns += 1;
   },
   
   helpers: {},
@@ -81,10 +81,10 @@ Moksi.describe('Moksi.Context', {
   },
   
   'runs its setup before each test': function() {
-    expects(context.suite.setupCount).equals(3);
+    expects(Counter.setups).equals(3);
   },
   
   'runs its teardown after each test': function() {
-    expects(context.suite.teardownCount).equals(3);
+    expects(Counter.teardowns).equals(3);
   }
 });
