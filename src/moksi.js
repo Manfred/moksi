@@ -22,14 +22,15 @@ var Moksi = {
   }
 };
 
-//= require "object"
+//= require "moksi/object"
 
-//= require "invocations"
+//= require "moksi/stubbing"
 
-//= require "expectations"
+//= require "moksi/invocations"
 
-//= require "context"
+//= require "moksi/expectations"
 
-//= require "reporter"
+//= require "moksi/context"
 
-//= require "stubbing"
+//= require "moksi/reporter"
+
