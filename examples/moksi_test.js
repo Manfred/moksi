@@ -1,5 +1,5 @@
 Moksi.describe('Moksi', {
-  'should have a version': function() {
-    expects(Moksi.VERSION).equals('0.1.0');
+  'returns its version': function() {
+    expects(Moksi.VERSION).equals('0.2.0');
   }
 });

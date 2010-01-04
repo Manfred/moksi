@@ -561,5 +561,17 @@ Moksi.describe('Moksi.Expectations.Expectation, concerning receives', Object.ext
     expects(this.suite.resolver.results.length).equals(1);
     expects(this.suite.resolver.results[0].result).equals('not ok');
     expects(this.suite.resolver.results[0].message).equals('expected ‘[object Object]’ to not receive ‘hasFriend(Manfred)’ 2 times, but was 2 times');
+  },
+  
+  'returns no value from the stubbed function': function() {
+    var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
+    expectation.receives('name');
+    expects(Person.name()).equals(null);
+  },
+  
+  'returns the specified values from the stubbed function': function() {
+    var expectation = new Moksi.Expectations.Expectation(Person, true, this.suite.resolver);
+    expectation.receives('name', { returns: 'Mary' });
+    expects(Person.name()).equals('Mary');
   }
 }, BaseTestSuite));

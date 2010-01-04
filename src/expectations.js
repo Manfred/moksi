@@ -85,6 +85,7 @@ Moksi.Expectations.Expectation = Class.create({
     
     Moksi.stubs(this.subject, method, function(subject) {
       Moksi.Invocations.register(subject, method, subject[method].arguments);
+      return options.returns;
     }.curry(this.subject));
     
     this._assertDelayed(function(subject, expectedResult) {
